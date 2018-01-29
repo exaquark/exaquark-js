@@ -1,4 +1,10 @@
-var awesomeFunction = require('../lib/awesomeModule');
+var exaquark = require('../lib/exaquark');
 
-var k = awesomeFunction(1, 2);
-console.log(k); // k === 3
+let params = {
+  userToken: "123"
+}
+let socket = new Socket("http://163.172.171.14:9999", {
+  params: params
+})
+
+socket.connect()
