@@ -11,9 +11,8 @@ let options = {
   transport: 'WebSocket', // WebSocket | UDP
   logger: logger, // not required
   universe: 5678923123, // defaults to sandbox
-  params: {
-    userId: "123", // required
-  }
+  userId: // mandatory
+  params: {} // optionals 
 }
 
 // // setup with listeners
@@ -174,4 +173,18 @@ socket.on("neighbor:updates") // a list of updates for your neighbors
 
 // Advanced - the SDK manages the lists of neighbors, however you can attach listeners to them if you want to perform these actions yourself
 socket.on("updates", msg => console.log("Got updates", msg) )
+
+
+/*
+  Receive a full list of nbs. Can be triggered from: socket connection/reconnection. exaQuark may send this sporadically to ensure consistency of neighborhood
+  When you receive this list, it is the latest and most up to date
+  @example
+*/
+var REMOVES = {
+  method: 'removes',
+  neighbors: [
+    //list of iid's
+  ]
+}
+
 socket.on("removes", msg => console.log("Got removes", msg) )

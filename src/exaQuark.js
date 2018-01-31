@@ -1,4 +1,4 @@
-import { log, getRequest } from './helpers/private.js'
+import { log, getRequest } from './../helpers/private.js'
 const WebSocket = (typeof window !== 'undefined' && window.WebSocket)
   ? window.WebSocket
   : require('websocket').w3cwebsocket
@@ -10,12 +10,12 @@ const WebSocket = (typeof window !== 'undefined' && window.WebSocket)
  * @param {string} apiKey - Your authentication key
  * @param {Object} options - @TODO
  */
-export default class exaQuark {
+class exaQuark {
   constructor(entryPoint, apiKey, options = {}){
     this.transport = WebSocket
     this.logger = options.logger || function(){} // noop
     this.params = options.params || {}
-    this.iid =
+    this.iid = null // Joaquin will create on WebSocket connection
     this.entryPoint = `${entryPoint}`
     this.bindings = []
   }
@@ -29,7 +29,6 @@ export default class exaQuark {
     getRequest(this.entryPoint)
       .then(response => {
         // generate iid - unique instance for this socket
-        payload.iid = aksjdhk
         let socketUrl = response.url + encodeURIComponent(payload)
         this.conn = new this.transport(response.url)
         this.conn.onopen = data => this.onConnOpen(data)
@@ -99,13 +98,32 @@ export default class exaQuark {
     log(this.logger, "onConnClose", event)
   }
 
-  onConnMessage(rawMessage) {
-    log(this.logger, "onConnMessage", rawMessage)
-    let msg = JSON.parse(rawMessage.data)
-    // let {topic, event, payload, ref} = msg
-    // this.bindings
-    //   .filter(bind => bind.event === triggerEvent)
-    //   .map( bind => bind.callback(payload, ref) )
+  // onConnMessage(rawMessage) {
+  //   log(this.logger, "onConnMessage", rawMessage)
+  //   let msg = JSON.parse(rawMessage.data)
+  //   this.
+  //   switch (data.method){
+  //     case 'neighbors': // list of neighbors
+  //         KC.neighbors(data);
+  //         break;
+  //     case 'updates': // moved etc
+  //         KC.updates(data);
+  //         break;
+  //     // case: // messages?
+  //     case 'removes': // leaving neighborhood
+  //         KC.removes(data);
+  //         break;
+  //
+  //   // let {topic, event, payload, ref} = msg
+  //   // this.bindings
+  //   //   .filter(bind => bind.event === triggerEvent)
+  //   //   .map( bind => bind.callback(payload, ref) )
+  // }
+
+  trigger(triggerEvent, payload,){
+    this.bindings
+      .filter( bind => bind.event === triggerEvent )
+      .map( bind => bind.callback(payload, ref) )
   }
 
   canPush() {
@@ -126,3 +144,4 @@ export default class exaQuark {
 
 
 }
+export default exaQuark

@@ -1,0 +1,437 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>Protocol · GitBook</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.2">
+        
+        
+        
+    
+    <link rel="stylesheet" href="gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="api.html" />
+    
+    
+    <link rel="prev" href="sdk.html" />
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    Introduction
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="sdk.html">
+            
+                <a href="sdk.html">
+            
+                    
+                    SDK
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter active" data-level="1.3" data-path="protocol.html">
+            
+                <a href="protocol.html">
+            
+                    
+                    Protocol
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="api.html">
+            
+                <a href="api.html">
+            
+                    
+                    API Reference
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="." >Protocol</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="protocol">Protocol</h1>
+<p>A high level overview of the exaQuark protocol</p>
+<h2 id="authorise-your-connection">Authorise your connection</h2>
+<p>Request a URL from exaQuark for the universe.</p>
+<pre><code class="lang-javascript"><span class="hljs-keyword">var</span> entryPoint = <span class="hljs-string">&apos;exaquark.io/universe_key&apos;</span>
+<span class="hljs-keyword">var</span> apiKey = <span class="hljs-string">&apos;29837928734a-29837928734a&apos;</span>
+
+requestConnection (entryPoint, apiKey, params)
+</code></pre>
+<p>Returns a URL for the universe which you can use to establish a socket connection</p>
+<pre><code class="lang-javascript">{
+  url: <span class="hljs-string">&apos;111.111.111.111&apos;</span> <span class="hljs-comment">// the url for the socket to connect to</span>
+}
+</code></pre>
+<h2 id="create-a-socket-connection">Create a socket connection</h2>
+<p>Establish the socket connection with your location and state. You don&apos;t need to provide your instance ID. exaQuark will return your instance ID</p>
+<pre><code class="lang-javascript">
+<span class="hljs-comment">// set up your initial state</span>
+<span class="hljs-keyword">var</span> payload = {
+  userId: <span class="hljs-string">&apos;123234&apos;</span>
+  geo: {
+    dimension: <span class="hljs-number">234234</span>, <span class="hljs-comment">// which dimension is the user in? - defaults to univers default</span>
+    lat: <span class="hljs-number">3.11</span>, <span class="hljs-comment">// lat required</span>
+    lng: <span class="hljs-number">5.33</span>, <span class="hljs-comment">// long required</span>
+    altitude: <span class="hljs-number">32</span>, <span class="hljs-comment">// altitude in meters, optional</span>
+    rotation: { <span class="hljs-number">2</span>, <span class="hljs-number">5</span>, <span class="hljs-number">19</span> } <span class="hljs-comment">// optional - default facing north</span>
+  },
+  properties: { <span class="hljs-comment">// some of this state changes infrequently - can we optimise bandwith by sending an different call - exaquark.push(&apos;properties&apos;, {}) ?</span>
+    avatarId: <span class="hljs-number">5678923123</span>,
+    sound: <span class="hljs-literal">true</span>, <span class="hljs-comment">// false = mute</span>
+    mic: <span class="hljs-literal">true</span>, <span class="hljs-comment">// false = mute microphone</span>
+    virtualPosition: <span class="hljs-literal">false</span>, <span class="hljs-comment">// is this person physically in the position that they are in the digital universe</span>
+    entityType: <span class="hljs-string">&apos;human&apos;</span> <span class="hljs-comment">// human | bot | drone</span>
+  },
+  state: {
+    <span class="hljs-comment">// developer defined state</span>
+  }
+}
+
+<span class="hljs-comment">// append your state to the endpoint</span>
+url += <span class="hljs-built_in">encodeURIComponent</span>(payload)
+<span class="hljs-keyword">var</span> socket = <span class="hljs-keyword">new</span> WebSocket(url)
+</code></pre>
+<p>Returns your identifying info and a list of you neighbors. You should save the instance ID to send with every request</p>
+<pre><code class="lang-javascript">{
+  iid: <span class="hljs-string">&apos;3459374593&apos;</span>, <span class="hljs-comment">// your instance ID</span>
+  neighbors [...{NeighborObject}]
+}
+</code></pre>
+<h2 id="notifications-from-exaquark">Notifications from exaQuark</h2>
+<p>All neighbours can be represented in the following format</p>
+<pre><code class="lang-javascript">@typedef NeighborObject::={
+  userId: <span class="hljs-number">234234</span>,
+  iid: <span class="hljs-number">29837928734</span>, <span class="hljs-comment">// instance ID</span>
+  delaunay: <span class="hljs-number">1</span>, <span class="hljs-comment">// 1 - 5</span>
+  geo: {
+    dimension: <span class="hljs-number">234234</span>, <span class="hljs-comment">// which dimension is the user in? - defaults to univers default</span>
+    lat: <span class="hljs-number">3.11</span>, <span class="hljs-comment">// lat required</span>
+    lng: <span class="hljs-number">5.33</span>, <span class="hljs-comment">// long required</span>
+    altitude: <span class="hljs-number">32</span>, <span class="hljs-comment">// altitude in meters, optional</span>
+    rotation: { <span class="hljs-number">2</span>, <span class="hljs-number">5</span>, <span class="hljs-number">19</span> } <span class="hljs-comment">// optional - default facing north</span>
+  },
+  properties: { <span class="hljs-comment">// some of this state changes infrequently - can we optimise bandwith by sending an different call - exaquark.push(&apos;properties&apos;, {}) ?</span>
+    avatarId: <span class="hljs-number">5678923123</span>,
+    sound: <span class="hljs-literal">true</span>, <span class="hljs-comment">// false = mute</span>
+    mic: <span class="hljs-literal">true</span>, <span class="hljs-comment">// false = mute microphone</span>
+    virtualPosition: <span class="hljs-literal">false</span>, <span class="hljs-comment">// is this person physically in the position that they are in the digital universe</span>
+    entityType: <span class="hljs-string">&apos;human&apos;</span> <span class="hljs-comment">// human | bot | drone</span>
+  },
+  state: {
+    <span class="hljs-comment">// developer defined state</span>
+  }
+}
+</code></pre>
+<h6 id="exaquark-sends-a-full-list-of-neighbors">exaQuark sends a full list of neighbors</h6>
+<p>Receive a full list of nbs. Can be triggered from: socket connection/reconnection. exaQuark may send this sporadically to ensure consistency of neighborhood
+When you receive this list, it is the latest and most up to date</p>
+<pre><code class="lang-javascript">{
+  method: <span class="hljs-string">&apos;neighbors&apos;</span>
+  neighbors: [
+    {NeighborObject},
+    ...
+  ]
+}
+</code></pre>
+<h5 id="notification-of-changes-in-the-neighborhood">Notification of changes in the neighborhood</h5>
+<pre><code class="lang-javascript">{
+  method: <span class="hljs-string">&apos;updates&apos;</span>
+  neighbors: [
+    {NeighborObject},
+    ...
+  ]
+}
+</code></pre>
+<h5 id="notifications-about-entities-leaving-the-neighborhood">Notifications about entities leaving the neighborhood</h5>
+<pre><code class="lang-javascript">{
+  method: <span class="hljs-string">&apos;removes&apos;</span>
+  neighbors: [
+    {NeighborObject},
+    ...
+  ]
+}
+</code></pre>
+<h5 id="data-is-sent-from-a-neighbor">Data is sent from a neighbor</h5>
+<pre><code class="lang-javascript">{
+  method: <span class="hljs-string">&apos;data&apos;</span>
+  data: {}
+}
+</code></pre>
+<h2 id="messages-to-exaquark">Messages to exaQuark</h2>
+<h5 id="update-position-and-state">Update position and state</h5>
+<pre><code class="lang-javascript">socket.send(<span class="hljs-built_in">JSON</span>.stringify({
+  method:<span class="hljs-string">&apos;update:state&apos;</span>,
+  userId: <span class="hljs-number">234234</span>,
+  iid: <span class="hljs-number">29837928734</span>, <span class="hljs-comment">// instance ID</span>
+  geo: {
+    lat: <span class="hljs-number">3.11</span>, <span class="hljs-comment">// lat required</span>
+    lng: <span class="hljs-number">5.33</span>, <span class="hljs-comment">// long required</span>
+    dimension: <span class="hljs-number">234234</span>, <span class="hljs-comment">// which dimension is the user in? - defaults to univers default</span>
+    alt: <span class="hljs-number">32</span>, <span class="hljs-comment">// altitude in meters, optional</span>
+    angle:<span class="hljs-number">40</span>, <span class="hljs-comment">// cardinal direction in degrees, optional</span>
+    pitch: <span class="hljs-number">0</span>,
+    yaw: <span class="hljs-number">0</span>,
+    roll: <span class="hljs-number">0</span>
+  },
+  properties: { <span class="hljs-comment">// some of this state changes infrequently - can we optimise bandwith by sending an different call - exaquark.push(&apos;properties&apos;, {}) ?</span>
+    avatarId: <span class="hljs-number">5678923123</span>,
+    sound: <span class="hljs-literal">true</span>, <span class="hljs-comment">// false = mute</span>
+    mic: <span class="hljs-literal">true</span>, <span class="hljs-comment">// false = mute microphone</span>
+    virtualPosition: <span class="hljs-literal">false</span>, <span class="hljs-comment">// is this person physically in the position that they are in the digital universe</span>
+    entityType: <span class="hljs-string">&apos;human&apos;</span> <span class="hljs-comment">// human | bot | drone</span>
+  },
+  state: {
+    <span class="hljs-comment">// developer defined state</span>
+  }
+}))
+</code></pre>
+<h5 id="send-data-to-all-neighbors">Send data to all neighbors</h5>
+<pre><code class="lang-javascript">socket.send(<span class="hljs-built_in">JSON</span>.stringify({
+  method:<span class="hljs-string">&apos;data:broadcast&apos;</span>,
+  userId: <span class="hljs-number">234234</span>,
+  iid: <span class="hljs-number">29837928734</span>, <span class="hljs-comment">// instance ID</span>
+  dimension: <span class="hljs-number">234234</span>,
+  iids: [ <span class="hljs-number">7687686</span> ]
+  data: { }
+}))
+</code></pre>
+<h5 id="send-data-to-one-neighbor">Send data to one neighbor</h5>
+<pre><code class="lang-javascript">socket.send(<span class="hljs-built_in">JSON</span>.stringify({
+  method:<span class="hljs-string">&apos;data:private&apos;</span>,
+  userId: <span class="hljs-number">234234</span>,
+  iid: <span class="hljs-number">29837928734</span>, <span class="hljs-comment">// instance ID</span>
+  dimension: <span class="hljs-number">234234</span>,
+  iids: [ <span class="hljs-number">7687686</span> ]
+  data: { }
+}))
+</code></pre>
+<h5 id="ask-for-a-list-of-neighbors">Ask for a list of neighbors</h5>
+<pre><code class="lang-javascript">socket.send(<span class="hljs-built_in">JSON</span>.stringify({
+  method:<span class="hljs-string">&apos;ask:neighbors&apos;</span>,
+  userId: <span class="hljs-number">234234</span>,
+  iid: <span class="hljs-number">29837928734</span>, <span class="hljs-comment">// instance ID</span>
+  dimension: <span class="hljs-number">234234</span>
+}))
+</code></pre>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="sdk.html" class="navigation navigation-prev " aria-label="Previous page: SDK">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="api.html" class="navigation navigation-next " aria-label="Next page: API Reference">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"Protocol","level":"1.3","depth":1,"next":{"title":"API Reference","level":"1.4","depth":1,"path":"api.md","ref":"api.md","articles":[]},"previous":{"title":"SDK","level":"1.2","depth":1,"path":"sdk.md","ref":"sdk.md","articles":[]},"dir":"ltr"},"config":{"plugins":["livereload"],"root":"./docs","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"livereload":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"intro.md","glossary":"GLOSSARY.md","summary":"toc.md"},"variables":{},"gitbook":"3.2.2"},"file":{"path":"protocol.md","mtime":"2018-01-31T10:39:52.000Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2018-01-31T10:18:10.508Z"},"basePath":".","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="gitbook/gitbook.js"></script>
+    <script src="gitbook/theme.js"></script>
+    
+        
+        <script src="gitbook/gitbook-plugin-livereload/plugin.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-fontsettings/fontsettings.js"></script>
+        
+    
+
+    </body>
+</html>
+
