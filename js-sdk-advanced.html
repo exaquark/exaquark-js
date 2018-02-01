@@ -4,7 +4,7 @@
     <head>
         <meta charset="UTF-8">
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-        <title>API Reference · GitBook</title>
+        <title>Advanced · GitBook</title>
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="description" content="">
         <meta name="generator" content="GitBook 3.2.2">
@@ -57,8 +57,10 @@
     <link rel="shortcut icon" href="gitbook/images/favicon.ico" type="image/x-icon">
 
     
+    <link rel="next" href="protocol.html" />
     
-    <link rel="prev" href="protocol.html" />
+    
+    <link rel="prev" href="js-sdk-send-updates.html" />
     
 
     </head>
@@ -166,7 +168,7 @@
             
         </li>
     
-        <li class="chapter " data-level="1.3.4" data-path="js-sdk-advanced.html">
+        <li class="chapter active" data-level="1.3.4" data-path="js-sdk-advanced.html">
             
                 <a href="js-sdk-advanced.html">
             
@@ -197,7 +199,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="1.5" data-path="api.html">
+        <li class="chapter " data-level="1.5" data-path="api.html">
             
                 <a href="api.html">
             
@@ -240,7 +242,7 @@
     <!-- Title -->
     <h1>
         <i class="fa fa-circle-o-notch fa-spin"></i>
-        <a href="." >API Reference</a>
+        <a href="." >Advanced</a>
     </h1>
 </div>
 
@@ -255,83 +257,13 @@
     
                                 <section class="normal markdown-section">
                                 
-                                <h2 id="classes">Classes</h2>
-<dl>
-<dt><a href="#exaQuark">exaQuark</a></dt>
-<dd></dd>
-</dl>
-
-<h2 id="members">Members</h2>
-<dl>
-<dt><a href="#protocol">protocol</a></dt>
-<dd><p>Class for communicating directly with exaQuark</p>
-</dd>
-</dl>
-
-<h2 id="functions">Functions</h2>
-<dl>
-<dt><a href="#value">value(entryPoint, apiKey)</a> &#x21D2;</dt>
-<dd></dd>
-</dl>
-
-<p><a name="exaQuark"></a></p>
-<h2 id="exaquark">exaQuark</h2>
-<p><strong>Kind</strong>: global class<br><a name="new_exaQuark_new"></a></p>
-<h3 id="new-exaquarkentrypoint-apikey-options">new exaQuark(entryPoint, apiKey, options)</h3>
-<p>Represents an exaQuark instance</p>
-<table>
-<thead>
-<tr>
-<th>Param</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>entryPoint</td>
-<td><code>string</code></td>
-<td>The URL of your exaQuark universe.</td>
-</tr>
-<tr>
-<td>apiKey</td>
-<td><code>string</code></td>
-<td>Your authentication key</td>
-</tr>
-<tr>
-<td>options</td>
-<td><code>Object</code></td>
-<td>@TODO</td>
-</tr>
-</tbody>
-</table>
-<p><a name="protocol"></a></p>
-<h2 id="protocol">protocol</h2>
-<p>Class for communicating directly with exaQuark</p>
-<p><strong>Kind</strong>: global variable<br><a name="value"></a></p>
-<h2 id="valueentrypoint-apikey-&#x21D2;">value(entryPoint, apiKey) &#x21D2;</h2>
-<p><strong>Kind</strong>: global function  </p>
-<table>
-<thead>
-<tr>
-<th>Param</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>entryPoint</td>
-<td><code>string</code></td>
-<td>The URL of your exaQuark universe.</td>
-</tr>
-<tr>
-<td>apiKey</td>
-<td><code>string</code></td>
-<td>Your authentication key</td>
-</tr>
-</tbody>
-</table>
+                                <h1 id="js-sdk">JS SDK</h1>
+<h3 id="advanced">Advanced</h3>
+<p>The SDK manages the lists of neighbors and sends via the <code>neighbors:x</code> notifications, however you can attach listeners to the following messages if you want to perform these actions yourself</p>
+<pre><code class="lang-javascript">exaQuark.on(<span class="hljs-string">&quot;neighbours&quot;</span>, arr =&gt; <span class="hljs-built_in">console</span>.log(arr)) <span class="hljs-comment">// a full list of neighbors is sent</span>
+exaQuark.on(<span class="hljs-string">&quot;updates&quot;</span>, arr =&gt; <span class="hljs-built_in">console</span>.log(arr)) <span class="hljs-comment">// a list of neighbors have been updated</span>
+exaQuark.on(<span class="hljs-string">&quot;removes&quot;</span>, arr =&gt; <span class="hljs-built_in">console</span>.log(arr)) <span class="hljs-comment">// a list of neighbours have been removed</span>
+</code></pre>
 
                                 
                                 </section>
@@ -359,10 +291,14 @@
 
             
                 
-                <a href="protocol.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page: Protocol">
+                <a href="js-sdk-send-updates.html" class="navigation navigation-prev " aria-label="Previous page: Sending updates">
                     <i class="fa fa-angle-left"></i>
                 </a>
                 
+                
+                <a href="protocol.html" class="navigation navigation-next " aria-label="Next page: Protocol">
+                    <i class="fa fa-angle-right"></i>
+                </a>
                 
             
         
@@ -371,7 +307,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"API Reference","level":"1.5","depth":1,"previous":{"title":"Protocol","level":"1.4","depth":1,"path":"protocol.md","ref":"protocol.md","articles":[]},"dir":"ltr"},"config":{"plugins":[],"root":"./docs","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"intro.md","glossary":"GLOSSARY.md","summary":"toc.md"},"variables":{},"gitbook":"3.2.2"},"file":{"path":"api.md","mtime":"2018-02-01T14:42:36.000Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2018-02-01T14:42:37.547Z"},"basePath":".","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Advanced","level":"1.3.4","depth":2,"next":{"title":"Protocol","level":"1.4","depth":1,"path":"protocol.md","ref":"protocol.md","articles":[]},"previous":{"title":"Sending updates","level":"1.3.3","depth":2,"path":"js-sdk-send-updates.md","ref":"js-sdk-send-updates.md","articles":[]},"dir":"ltr"},"config":{"plugins":[],"root":"./docs","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"intro.md","glossary":"GLOSSARY.md","summary":"toc.md"},"variables":{},"gitbook":"3.2.2"},"file":{"path":"js-sdk-advanced.md","mtime":"2018-02-01T14:38:27.000Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2018-02-01T14:42:37.547Z"},"basePath":".","book":{"language":""}});
         });
     </script>
 </div>

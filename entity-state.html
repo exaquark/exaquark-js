@@ -4,7 +4,7 @@
     <head>
         <meta charset="UTF-8">
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-        <title>API Reference · GitBook</title>
+        <title>Entity State · GitBook</title>
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="description" content="">
         <meta name="generator" content="GitBook 3.2.2">
@@ -57,8 +57,10 @@
     <link rel="shortcut icon" href="gitbook/images/favicon.ico" type="image/x-icon">
 
     
+    <link rel="next" href="js-sdk.html" />
     
-    <link rel="prev" href="protocol.html" />
+    
+    <link rel="prev" href="./" />
     
 
     </head>
@@ -100,7 +102,7 @@
             
         </li>
     
-        <li class="chapter " data-level="1.2" data-path="entity-state.html">
+        <li class="chapter active" data-level="1.2" data-path="entity-state.html">
             
                 <a href="entity-state.html">
             
@@ -197,7 +199,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="1.5" data-path="api.html">
+        <li class="chapter " data-level="1.5" data-path="api.html">
             
                 <a href="api.html">
             
@@ -240,7 +242,7 @@
     <!-- Title -->
     <h1>
         <i class="fa fa-circle-o-notch fa-spin"></i>
-        <a href="." >API Reference</a>
+        <a href="." >Entity State</a>
     </h1>
 </div>
 
@@ -255,83 +257,32 @@
     
                                 <section class="normal markdown-section">
                                 
-                                <h2 id="classes">Classes</h2>
-<dl>
-<dt><a href="#exaQuark">exaQuark</a></dt>
-<dd></dd>
-</dl>
-
-<h2 id="members">Members</h2>
-<dl>
-<dt><a href="#protocol">protocol</a></dt>
-<dd><p>Class for communicating directly with exaQuark</p>
-</dd>
-</dl>
-
-<h2 id="functions">Functions</h2>
-<dl>
-<dt><a href="#value">value(entryPoint, apiKey)</a> &#x21D2;</dt>
-<dd></dd>
-</dl>
-
-<p><a name="exaQuark"></a></p>
-<h2 id="exaquark">exaQuark</h2>
-<p><strong>Kind</strong>: global class<br><a name="new_exaQuark_new"></a></p>
-<h3 id="new-exaquarkentrypoint-apikey-options">new exaQuark(entryPoint, apiKey, options)</h3>
-<p>Represents an exaQuark instance</p>
-<table>
-<thead>
-<tr>
-<th>Param</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>entryPoint</td>
-<td><code>string</code></td>
-<td>The URL of your exaQuark universe.</td>
-</tr>
-<tr>
-<td>apiKey</td>
-<td><code>string</code></td>
-<td>Your authentication key</td>
-</tr>
-<tr>
-<td>options</td>
-<td><code>Object</code></td>
-<td>@TODO</td>
-</tr>
-</tbody>
-</table>
-<p><a name="protocol"></a></p>
-<h2 id="protocol">protocol</h2>
-<p>Class for communicating directly with exaQuark</p>
-<p><strong>Kind</strong>: global variable<br><a name="value"></a></p>
-<h2 id="valueentrypoint-apikey-&#x21D2;">value(entryPoint, apiKey) &#x21D2;</h2>
-<p><strong>Kind</strong>: global function  </p>
-<table>
-<thead>
-<tr>
-<th>Param</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>entryPoint</td>
-<td><code>string</code></td>
-<td>The URL of your exaQuark universe.</td>
-</tr>
-<tr>
-<td>apiKey</td>
-<td><code>string</code></td>
-<td>Your authentication key</td>
-</tr>
-</tbody>
-</table>
+                                <h1 id="entity-state">Entity State</h1>
+<p>The following is a representation of an entity in a dimension. It is the standard format that is sent and received from exaQuark.</p>
+<p>Any time you see <code>{{EntityState}}</code> in the documentation it is referring to the following format.</p>
+<pre><code class="lang-javascript">@typedef EntityState::={
+  userId: <span class="hljs-string">&apos;MOCK_USER_ID&apos;</span>, <span class="hljs-comment">// {string} required: their userId</span>
+  iid: MOCK_IID, <span class="hljs-comment">// {number} required: instance ID - each user can have multiple &quot;instances&quot;. For example they can be logged in to their browser and their phone at the same time</span>
+  dimension: MOCK_DIMENSION_ID, <span class="hljs-comment">// {number} required:  which dimension is the entitiy in</span>
+  delaunay: <span class="hljs-number">1</span>, <span class="hljs-comment">// {number} 1 - 5 - delaunay is the &quot;distance&quot; of your neighbor. It isn&apos;t required when sending to exaQuark, however you will receive it in notifications about your neighbors</span>
+  geo: {
+    lat: <span class="hljs-number">3.11</span>, <span class="hljs-comment">// {float} required: latitude</span>
+    lng: <span class="hljs-number">5.33</span>, <span class="hljs-comment">// {float} required: longitude</span>
+    altitude: <span class="hljs-number">32</span>, <span class="hljs-comment">// {number} optional: altitude in meters</span>
+    rotation: { <span class="hljs-number">2</span>, <span class="hljs-number">5</span>, <span class="hljs-number">19</span> } <span class="hljs-comment">// {Object} optional: default facing north</span>
+  },
+  properties: {
+    avatarId: <span class="hljs-number">5678923123</span>, <span class="hljs-comment">// {Object} required: the avatar your user has selected</span>
+    sound: <span class="hljs-literal">true</span>, <span class="hljs-comment">// {boolean} optional: defaults to true. false === mute</span>
+    mic: <span class="hljs-literal">true</span>, <span class="hljs-comment">// {boolean} optional: defaults to true. false === muted microphone</span>
+    virtualPosition: <span class="hljs-literal">false</span>, <span class="hljs-comment">// {boolean} optional: defaults to false. Is this person physically in the position that they are in the digital universe. (true === they are not physically present there)</span>
+    entityType: <span class="hljs-string">&apos;human&apos;</span> <span class="hljs-comment">// {string} optional: defaults to &apos;human&apos;. Options: &apos;human&apos; | &apos;bot&apos; | &apos;drone&apos;</span>
+  },
+  dimensionState: {
+    <span class="hljs-comment">// developer defined state for their dimension</span>
+  }
+}
+</code></pre>
 
                                 
                                 </section>
@@ -359,10 +310,14 @@
 
             
                 
-                <a href="protocol.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page: Protocol">
+                <a href="./" class="navigation navigation-prev " aria-label="Previous page: Introduction">
                     <i class="fa fa-angle-left"></i>
                 </a>
                 
+                
+                <a href="js-sdk.html" class="navigation navigation-next " aria-label="Next page: JS SDK">
+                    <i class="fa fa-angle-right"></i>
+                </a>
                 
             
         
@@ -371,7 +326,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"API Reference","level":"1.5","depth":1,"previous":{"title":"Protocol","level":"1.4","depth":1,"path":"protocol.md","ref":"protocol.md","articles":[]},"dir":"ltr"},"config":{"plugins":[],"root":"./docs","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"intro.md","glossary":"GLOSSARY.md","summary":"toc.md"},"variables":{},"gitbook":"3.2.2"},"file":{"path":"api.md","mtime":"2018-02-01T14:42:36.000Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2018-02-01T14:42:37.547Z"},"basePath":".","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Entity State","level":"1.2","depth":1,"next":{"title":"JS SDK","level":"1.3","depth":1,"path":"js-sdk.md","ref":"js-sdk.md","articles":[{"title":"Getting Started","level":"1.3.1","depth":2,"path":"js-sdk-getting-started.md","ref":"js-sdk-getting-started.md","articles":[]},{"title":"Notifications from exaQuark","level":"1.3.2","depth":2,"path":"js-sdk-notifications.md","ref":"js-sdk-notifications.md","articles":[]},{"title":"Sending updates","level":"1.3.3","depth":2,"path":"js-sdk-send-updates.md","ref":"js-sdk-send-updates.md","articles":[]},{"title":"Advanced","level":"1.3.4","depth":2,"path":"js-sdk-advanced.md","ref":"js-sdk-advanced.md","articles":[]}]},"previous":{"title":"Introduction","level":"1.1","depth":1,"path":"intro.md","ref":"intro.md","articles":[]},"dir":"ltr"},"config":{"plugins":[],"root":"./docs","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"intro.md","glossary":"GLOSSARY.md","summary":"toc.md"},"variables":{},"gitbook":"3.2.2"},"file":{"path":"entity-state.md","mtime":"2018-02-01T14:29:39.000Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2018-02-01T14:42:37.547Z"},"basePath":".","book":{"language":""}});
         });
     </script>
 </div>
