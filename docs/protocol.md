@@ -10,13 +10,15 @@ A high level overview of the exaQuark protocol
 
 ## Authorise your connection
 
-Request a URL from exaQuark for the universe.
+Request the entrypoint for the universe.
 
 ```javascript
-var entryPoint = 'exaquark.io/universe_key'
-var apiKey = '29837928734a-29837928734a'
+var allocatorUrl = 'exaquark.io' // required
+var apiKey = '29837928734a-29837928734a' // required
+var universeId = '29783asdf827' // required
+var transport = 'WEB_SOCKET' // required: WEB_SOCKET | UDP
 
-requestConnection (entryPoint, apiKey, params)
+requestEntrypoint (allocatorUrl, apiKey, universeId, transport)
 
 ```
 
@@ -24,22 +26,24 @@ Returns a URL for the universe which you can use to establish a socket connectio
 
 ```javascript
 {
-  url: '111.111.111.111' // the url for the socket to connect to
+  entryPoint: '111.111.111.111', // the url for the socket to connect to
+  iid: '2983748234'
 }
 
 ```
 
 ## Create a socket connection
 
-Establish the socket connection with your location and state. You don't need to provide your instance ID. exaQuark will return your instance ID
+Establish the connection with your location and state.
 
 ```javascript
 
 // set up your initial state
-var payload = {
-  userId: '123234'
+var initialState = {
+  userId: '123234',
+  iid: '2983748234',
+  dimension: 234234, // which dimension is the user in? - defaults to universe default
   geo: {
-    dimension: 234234, // which dimension is the user in? - defaults to univers default
     lat: 3.11, // lat required
     lng: 5.33, // long required
     altitude: 32, // altitude in meters, optional
@@ -52,37 +56,29 @@ var payload = {
     virtualPosition: false, // is this person physically in the position that they are in the digital universe
     entityType: 'human' // human | bot | drone
   },
-  state: {
-    // developer defined state
+  dimensionState: {
+    // developer defined state for their dimension
   }
 }
 
 // append your state to the endpoint
-url += encodeURIComponent(payload)
+entryPoint += encodeURIComponent(initialState)
 var socket = new WebSocket(url)
 ```
 
-Returns your identifying info and a list of you neighbors. You should save the instance ID to send with every request
-
-```javascript
-{
-  iid: '3459374593', // your instance ID
-  neighbors [...{NeighborObject}]
-}
-
-```
+Once you have connected you will receive a stream of the following notifications:
 
 ## Notifications from exaQuark
 
 All neighbours can be represented in the following format
 
 ```javascript
-@typedef NeighborObject::={
-  userId: 234234,
+@typedef EntityState::={
+  userId: 234234, // their userId
   iid: 29837928734, // instance ID
-  delaunay: 1, // 1 - 5
+  dimension: 234234, // which dimension is the entitiy in
+  delaunay: 1, // 1 - 5 - delaunay is not required when sending to exaQuark, however you will receive it back for your neighbors
   geo: {
-    dimension: 234234, // which dimension is the user in? - defaults to univers default
     lat: 3.11, // lat required
     lng: 5.33, // long required
     altitude: 32, // altitude in meters, optional
@@ -95,15 +91,15 @@ All neighbours can be represented in the following format
     virtualPosition: false, // is this person physically in the position that they are in the digital universe
     entityType: 'human' // human | bot | drone
   },
-  state: {
-    // developer defined state
+  dimensionState: {
+    // developer defined state for their dimension
   }
 }
 ```
 
 ###### exaQuark sends a full list of neighbors
 
-Receive a full list of nbs. Can be triggered from: socket connection/reconnection. exaQuark may send this sporadically to ensure consistency of neighborhood
+Receive a full list of neighbours - your own IID will not be included in this list. Can be triggered from: socket connection/reconnection. exaQuark may send this sporadically to ensure consistency of neighborhood
 When you receive this list, it is the latest and most up to date
 
 
@@ -111,7 +107,7 @@ When you receive this list, it is the latest and most up to date
 {
   method: 'neighbors'
   neighbors: [
-    {NeighborObject},
+    {EntityState},
     ...
   ]
 }
@@ -126,7 +122,7 @@ When you receive this list, it is the latest and most up to date
 {
   method: 'updates'
   neighbors: [
-    {NeighborObject},
+    {EntityState},
     ...
   ]
 }
@@ -138,18 +134,31 @@ When you receive this list, it is the latest and most up to date
 {
   method: 'removes'
   neighbors: [
-    {NeighborObject},
-    ...
+    // list of entities identified by the following
+    {
+      userId: 234234, // their userId
+      iid: 29837928734, // instance ID
+      dimension: 234234, // which dimension is the entitiy in
+    }
   ]
 }
 ```
 
-##### Data is sent from a neighbor
+##### Data is received
+
+@TODO: explanation
 
 ```javascript
 {
-  method: 'data'
-  data: {}
+  method: 'data',
+  source: {
+    userId: 234234,
+    iid: 29837928734, // instance ID
+    dimension: 1782687123, // which dimension this data came from
+  },
+  data: {
+
+  }
 }
 ```
 
@@ -158,68 +167,47 @@ When you receive this list, it is the latest and most up to date
 ##### Update position and state
 
 ```javascript
-socket.send(JSON.stringify({
-  method:'update:state',
-  userId: 234234,
-  iid: 29837928734, // instance ID
-  geo: {
-    lat: 3.11, // lat required
-    lng: 5.33, // long required
-    dimension: 234234, // which dimension is the user in? - defaults to univers default
-    alt: 32, // altitude in meters, optional
-    angle:40, // cardinal direction in degrees, optional
-    pitch: 0,
-    yaw: 0,
-    roll: 0
-  },
-  properties: { // some of this state changes infrequently - can we optimise bandwith by sending an different call - exaquark.push('properties', {}) ?
-    avatarId: 5678923123,
-    sound: true, // false = mute
-    mic: true, // false = mute microphone
-    virtualPosition: false, // is this person physically in the position that they are in the digital universe
-    entityType: 'human' // human | bot | drone
-  },
-  state: {
-    // developer defined state
-  }
-}))
+socket.send(JSON.stringify(<EntityState>))
 ```
 
-##### Send data to all neighbors
+##### Send data to all neighbors of a given level (delauney)
 
 ```javascript
 socket.send(JSON.stringify({
   method:'data:broadcast',
   userId: 234234,
   iid: 29837928734, // instance ID
-  dimension: 234234,
-  iids: [ 7687686 ]
+  dimension: 234234, // source dimension
+  reach: 1, // 1 - 5 delauney
   data: { }
 }))
 ```
 
-##### Send data to one neighbor
+##### Send data to some neighbors
 
 ```javascript
 socket.send(JSON.stringify({
   method:'data:private',
   userId: 234234,
   iid: 29837928734, // instance ID
-  dimension: 234234,
-  iids: [ 7687686 ]
+  dimension: 234234, // source dimension
+  neigbours: [
+    {
+      userId: 7687686,
+      iid: 29837928734, // instance ID
+    }
+  ]
   data: { }
 }))
 ```
 
 
-##### Ask for a list of neighbors
-
+##### Ask for a full list of neighbors
 
 ```javascript
 socket.send(JSON.stringify({
   method:'ask:neighbors',
   userId: 234234,
   iid: 29837928734, // instance ID
-  dimension: 234234
 }))
 ```
