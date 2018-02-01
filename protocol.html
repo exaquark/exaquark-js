@@ -190,18 +190,18 @@
 <p>A high level overview of the exaQuark protocol</p>
 <h2 id="authorise-your-connection">Authorise your connection</h2>
 <p>Request the entrypoint for the universe.</p>
-<pre><code class="lang-javascript"><span class="hljs-keyword">var</span> allocatorUrl = <span class="hljs-string">&apos;exaquark.io&apos;</span> <span class="hljs-comment">// required</span>
-<span class="hljs-keyword">var</span> apiKey = <span class="hljs-string">&apos;29837928734a-29837928734a&apos;</span> <span class="hljs-comment">// required</span>
-<span class="hljs-keyword">var</span> universeId = <span class="hljs-string">&apos;29783asdf827&apos;</span> <span class="hljs-comment">// required</span>
+<pre><code class="lang-javascript"><span class="hljs-keyword">var</span> allocatorUrl = <span class="hljs-string">&apos;https://enter.exaquark.net&apos;</span> <span class="hljs-comment">// required</span>
+<span class="hljs-keyword">var</span> apiKey = <span class="hljs-string">&apos;YOUR_API_KEY&apos;</span> <span class="hljs-comment">// required</span>
+<span class="hljs-keyword">var</span> universeId = <span class="hljs-string">&apos;TARGET_UNIVERSE_ID&apos;</span> <span class="hljs-comment">// required</span>
 <span class="hljs-keyword">var</span> transport = <span class="hljs-string">&apos;WEB_SOCKET&apos;</span> <span class="hljs-comment">// required: WEB_SOCKET | UDP</span>
 
+<span class="hljs-keyword">var</span> entryPoint = <span class="hljs-literal">null</span> <span class="hljs-comment">// the url for the socket to connect to</span>
+<span class="hljs-keyword">var</span> iid = <span class="hljs-literal">null</span> <span class="hljs-comment">// the user&apos;s instance ID for this connection</span>
 requestEntrypoint (allocatorUrl, apiKey, universeId, transport)
-</code></pre>
-<p>Returns a URL for the universe which you can use to establish a socket connection</p>
-<pre><code class="lang-javascript">{
-  entryPoint: <span class="hljs-string">&apos;111.111.111.111&apos;</span>, <span class="hljs-comment">// the url for the socket to connect to</span>
-  iid: <span class="hljs-string">&apos;2983748234&apos;</span>
-}
+.then(response =&gt; {
+  entryPoint = response.entryPoint <span class="hljs-comment">// URL for the universe which you can use to establish a socket connection</span>
+  iid = response.iid
+})
 </code></pre>
 <p>Note that the following is a representation of an entity in a dimension</p>
 <pre><code class="lang-javascript">@typedef EntityState::={
@@ -365,7 +365,7 @@ When you receive this list, it is the latest and most up to date</p>
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Protocol","level":"1.3","depth":1,"next":{"title":"API Reference","level":"1.4","depth":1,"path":"api.md","ref":"api.md","articles":[]},"previous":{"title":"SDK","level":"1.2","depth":1,"path":"sdk.md","ref":"sdk.md","articles":[]},"dir":"ltr"},"config":{"plugins":[],"root":"./docs","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"intro.md","glossary":"GLOSSARY.md","summary":"toc.md"},"variables":{},"gitbook":"3.2.2"},"file":{"path":"protocol.md","mtime":"2018-02-01T04:50:20.000Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2018-02-01T04:51:09.811Z"},"basePath":".","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Protocol","level":"1.3","depth":1,"next":{"title":"API Reference","level":"1.4","depth":1,"path":"api.md","ref":"api.md","articles":[]},"previous":{"title":"SDK","level":"1.2","depth":1,"path":"sdk.md","ref":"sdk.md","articles":[]},"dir":"ltr"},"config":{"plugins":[],"root":"./docs","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"intro.md","glossary":"GLOSSARY.md","summary":"toc.md"},"variables":{},"gitbook":"3.2.2"},"file":{"path":"protocol.md","mtime":"2018-02-01T13:19:57.000Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2018-02-01T14:23:29.944Z"},"basePath":".","book":{"language":""}});
         });
     </script>
 </div>
