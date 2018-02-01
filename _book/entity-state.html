@@ -1,0 +1,365 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>Entity State · GitBook</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.2">
+        
+        
+        
+    
+    <link rel="stylesheet" href="gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="js-sdk.html" />
+    
+    
+    <link rel="prev" href="./" />
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    Introduction
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter active" data-level="1.2" data-path="entity-state.html">
+            
+                <a href="entity-state.html">
+            
+                    
+                    Entity State
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="js-sdk.html">
+            
+                <a href="js-sdk.html">
+            
+                    
+                    JS SDK
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.3.1" data-path="js-sdk-getting-started.html">
+            
+                <a href="js-sdk-getting-started.html">
+            
+                    
+                    Getting Started
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.2" data-path="js-sdk-notifications.html">
+            
+                <a href="js-sdk-notifications.html">
+            
+                    
+                    Notifications from exaQuark
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.3" data-path="js-sdk-send-updates.html">
+            
+                <a href="js-sdk-send-updates.html">
+            
+                    
+                    Sending updates
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.4" data-path="js-sdk-advanced.html">
+            
+                <a href="js-sdk-advanced.html">
+            
+                    
+                    Advanced
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="protocol.html">
+            
+                <a href="protocol.html">
+            
+                    
+                    Protocol
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="api.html">
+            
+                <a href="api.html">
+            
+                    
+                    API Reference
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="." >Entity State</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="entity-state">Entity State</h1>
+<p>The following is a representation of an entity in a dimension. It is the standard format that is sent and received from exaQuark.</p>
+<p>Any time you see <code>{{EntityState}}</code> in the documentation it is referring to the following format.</p>
+<pre><code class="lang-javascript">@typedef EntityState::={
+  userId: <span class="hljs-string">&apos;MOCK_USER_ID&apos;</span>, <span class="hljs-comment">// {string} required: their userId</span>
+  iid: MOCK_IID, <span class="hljs-comment">// {number} required: instance ID - each user can have multiple &quot;instances&quot;. For example they can be logged in to their browser and their phone at the same time</span>
+  dimension: MOCK_DIMENSION_ID, <span class="hljs-comment">// {number} required:  which dimension is the entitiy in</span>
+  delaunay: <span class="hljs-number">1</span>, <span class="hljs-comment">// {number} 1 - 5 - delaunay is the &quot;distance&quot; of your neighbor. It isn&apos;t required when sending to exaQuark, however you will receive it in notifications about your neighbors</span>
+  geo: {
+    lat: <span class="hljs-number">3.11</span>, <span class="hljs-comment">// {float} required: latitude</span>
+    lng: <span class="hljs-number">5.33</span>, <span class="hljs-comment">// {float} required: longitude</span>
+    altitude: <span class="hljs-number">32</span>, <span class="hljs-comment">// {number} optional: altitude in meters</span>
+    rotation: { <span class="hljs-number">2</span>, <span class="hljs-number">5</span>, <span class="hljs-number">19</span> } <span class="hljs-comment">// {Object} optional: default facing north</span>
+  },
+  properties: {
+    avatarId: <span class="hljs-number">5678923123</span>, <span class="hljs-comment">// {Object} required: the avatar your user has selected</span>
+    sound: <span class="hljs-literal">true</span>, <span class="hljs-comment">// {boolean} optional: defaults to true. false === mute</span>
+    mic: <span class="hljs-literal">true</span>, <span class="hljs-comment">// {boolean} optional: defaults to true. false === muted microphone</span>
+    virtualPosition: <span class="hljs-literal">false</span>, <span class="hljs-comment">// {boolean} optional: defaults to false. Is this person physically in the position that they are in the digital universe. (true === they are not physically present there)</span>
+    entityType: <span class="hljs-string">&apos;human&apos;</span> <span class="hljs-comment">// {string} optional: defaults to &apos;human&apos;. Options: &apos;human&apos; | &apos;bot&apos; | &apos;drone&apos;</span>
+  },
+  dimensionState: {
+    <span class="hljs-comment">// developer defined state for their dimension</span>
+  }
+}
+</code></pre>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="./" class="navigation navigation-prev " aria-label="Previous page: Introduction">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="js-sdk.html" class="navigation navigation-next " aria-label="Next page: JS SDK">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"Entity State","level":"1.2","depth":1,"next":{"title":"JS SDK","level":"1.3","depth":1,"path":"js-sdk.md","ref":"js-sdk.md","articles":[{"title":"Getting Started","level":"1.3.1","depth":2,"path":"js-sdk-getting-started.md","ref":"js-sdk-getting-started.md","articles":[]},{"title":"Notifications from exaQuark","level":"1.3.2","depth":2,"path":"js-sdk-notifications.md","ref":"js-sdk-notifications.md","articles":[]},{"title":"Sending updates","level":"1.3.3","depth":2,"path":"js-sdk-send-updates.md","ref":"js-sdk-send-updates.md","articles":[]},{"title":"Advanced","level":"1.3.4","depth":2,"path":"js-sdk-advanced.md","ref":"js-sdk-advanced.md","articles":[]}]},"previous":{"title":"Introduction","level":"1.1","depth":1,"path":"intro.md","ref":"intro.md","articles":[]},"dir":"ltr"},"config":{"plugins":[],"root":"./docs","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"intro.md","glossary":"GLOSSARY.md","summary":"toc.md"},"variables":{},"gitbook":"3.2.2"},"file":{"path":"entity-state.md","mtime":"2018-02-01T14:29:39.000Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2018-02-01T14:42:37.547Z"},"basePath":".","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="gitbook/gitbook.js"></script>
+    <script src="gitbook/theme.js"></script>
+    
+        
+        <script src="gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-fontsettings/fontsettings.js"></script>
+        
+    
+
+    </body>
+</html>
+
