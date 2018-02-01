@@ -32,45 +32,8 @@ Returns a URL for the universe which you can use to establish a socket connectio
 
 ```
 
-## Create a socket connection
 
-Establish the connection with your location and state.
-
-```javascript
-
-// set up your initial state
-var initialState = {
-  userId: '123234',
-  iid: '2983748234',
-  dimension: 234234, // which dimension is the user in? - defaults to universe default
-  geo: {
-    lat: 3.11, // lat required
-    lng: 5.33, // long required
-    altitude: 32, // altitude in meters, optional
-    rotation: { 2, 5, 19 } // optional - default facing north
-  },
-  properties: { // some of this state changes infrequently - can we optimise bandwith by sending an different call - exaquark.push('properties', {}) ?
-    avatarId: 5678923123,
-    sound: true, // false = mute
-    mic: true, // false = mute microphone
-    virtualPosition: false, // is this person physically in the position that they are in the digital universe
-    entityType: 'human' // human | bot | drone
-  },
-  dimensionState: {
-    // developer defined state for their dimension
-  }
-}
-
-// append your state to the endpoint
-entryPoint += encodeURIComponent(initialState)
-var socket = new WebSocket(url)
-```
-
-Once you have connected you will receive a stream of the following notifications:
-
-## Notifications from exaQuark
-
-All neighbours can be represented in the following format
+Note that the following is a representation of an entity in a dimension
 
 ```javascript
 @typedef EntityState::={
@@ -97,6 +60,25 @@ All neighbours can be represented in the following format
 }
 ```
 
+## Create a socket connection
+
+Establish the connection with your location and state.
+
+```javascript
+
+// set up your initial state
+var initialState = <EntityState>
+
+// append your state to the endpoint
+entryPoint += encodeURIComponent(initialState)
+var socket = new WebSocket(url)
+```
+
+Once you have connected you will receive a stream of the following notifications:
+
+## Notifications from exaQuark
+
+
 ###### exaQuark sends a full list of neighbors
 
 Receive a full list of neighbours - your own IID will not be included in this list. Can be triggered from: socket connection/reconnection. exaQuark may send this sporadically to ensure consistency of neighborhood
@@ -107,7 +89,7 @@ When you receive this list, it is the latest and most up to date
 {
   method: 'neighbors'
   neighbors: [
-    {EntityState},
+    <EntityState>,
     ...
   ]
 }
@@ -122,7 +104,7 @@ When you receive this list, it is the latest and most up to date
 {
   method: 'updates'
   neighbors: [
-    {EntityState},
+    <EntityState>,
     ...
   ]
 }
