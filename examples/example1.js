@@ -9,10 +9,9 @@ let logger = (msg, data) => {
 
 let options = {
   transport: 'WebSocket', // WebSocket | UDP
-  logger: logger, // not required
+  logger: (msg, data) => { console.log(msg, data) }, // not required
   universe: 5678923123, // defaults to sandbox
   userId: // mandatory
-  params: {} // optionals 
 }
 
 // // setup with listeners
@@ -165,13 +164,14 @@ socket.push('ask:neighbors')
     }
   ]
 */
-socket.on("neighbors", msg => console.log("Got neighbors", msg) )
-socket.on("neighbor:enter") // when a single neighbor appears
-socket.on("neighbor:leave") // when a single neighbor leaves your
-socket.on("neighbor:updates") // a list of updates for your neighbors
+socket.on("neighbors:list", msg => console.log("Got neighbors", msg) )
+socket.on("neighbors:enter") // when a single neighbor appears
+socket.on("neighbors:leave") // when a single neighbor leaves your
+socket.on("neighbors:updates") // a list of updates for your neighbors
 
 
 // Advanced - the SDK manages the lists of neighbors, however you can attach listeners to them if you want to perform these actions yourself
+socket.on("neighbours", msg => console.log("Got updates", msg) )
 socket.on("updates", msg => console.log("Got updates", msg) )
 
 

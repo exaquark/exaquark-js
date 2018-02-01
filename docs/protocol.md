@@ -13,23 +13,18 @@ A high level overview of the exaQuark protocol
 Request the entrypoint for the universe.
 
 ```javascript
-var allocatorUrl = 'exaquark.io' // required
-var apiKey = '29837928734a-29837928734a' // required
-var universeId = '29783asdf827' // required
+var allocatorUrl = 'https://enter.exaquark.net' // required
+var apiKey = 'YOUR_API_KEY' // required
+var universeId = 'TARGET_UNIVERSE_ID' // required
 var transport = 'WEB_SOCKET' // required: WEB_SOCKET | UDP
 
+var entryPoint = null // the url for the socket to connect to
+var iid = null // the user's instance ID for this connection
 requestEntrypoint (allocatorUrl, apiKey, universeId, transport)
-
-```
-
-Returns a URL for the universe which you can use to establish a socket connection
-
-```javascript
-{
-  entryPoint: '111.111.111.111', // the url for the socket to connect to
-  iid: '2983748234'
-}
-
+.then(response => {
+  entryPoint = response.entryPoint // URL for the universe which you can use to establish a socket connection
+  iid = response.iid
+})
 ```
 
 
