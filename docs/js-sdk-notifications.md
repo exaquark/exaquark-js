@@ -41,12 +41,15 @@ In some cases the developer want to pass arbitary data around to their neighbors
 The data is received in the following format
 
 ```javascript
-exaQuark.on("data", data => console.log(data))
+exaQuark.on("data", payload => console.log(payload))
 /*
-Example data format:
+Example payload format:
 {
-  from: <SENDER_IID>,
-  dimension: <DIMENSION_ID>, // the dimension your user is in
+  source: {
+    entityId: {{SENDER_ENTITY_ID}}
+    iid: {{SENDER_IID}},
+    dimension: {{DIMENSION_ID}}
+  },
   data: {
     // data that was sent
   }

@@ -266,22 +266,20 @@
 <h2 id="usage">Usage</h2>
 <h5 id="set-up">Set up</h5>
 <pre><code class="lang-javascript"><span class="hljs-keyword">const</span> exaQuarkJs = <span class="hljs-built_in">require</span>(<span class="hljs-string">&apos;exaquark-js&apos;</span>)
-<span class="hljs-keyword">var</span> enterUrl = <span class="hljs-string">&apos;https://enter.exaquark.net&apos;</span> <span class="hljs-comment">// required</span>
 <span class="hljs-keyword">var</span> apiKey = <span class="hljs-string">&apos;YOUR_API_KEY&apos;</span> <span class="hljs-comment">// required</span>
 <span class="hljs-keyword">let</span> options = {
-  userId: USER_ID, <span class="hljs-comment">// required</span>
+  entityId: ENTITY_ID, <span class="hljs-comment">// required</span>
   universe: UNIVERSE_ID, <span class="hljs-comment">// optional: defaults to sandbox</span>
   transport: <span class="hljs-string">&apos;WebSocket&apos;</span>, <span class="hljs-comment">// optional: WebSocket | UDP</span>
   logger: (msg, data) =&gt; { <span class="hljs-built_in">console</span>.log(msg, data) }, <span class="hljs-comment">// optional: attach your own logger</span>
 }
 <span class="hljs-keyword">var</span> iid = <span class="hljs-literal">null</span> <span class="hljs-comment">// exaQuark will generate - A user can have multiple instance ID&apos;s (eg, one for their phone, one for their AR glasses)</span>
-<span class="hljs-keyword">var</span> exaQuark = <span class="hljs-keyword">new</span> exaQuarkJs(enterUrl, apiKey, options)
+<span class="hljs-keyword">var</span> exaQuark = <span class="hljs-keyword">new</span> exaQuarkJs(apiKey, options)
 .then(response =&gt; {
   iid = response.iid
 })
-</code></pre>
-<h5 id="connect-to-a-universe">Connect to a universe</h5>
-<pre><code class="lang-javascript"><span class="hljs-comment">// First, subscribe to the individual neighborhood events - see &quot;Notifications from exaQuark&quot; below</span>
+
+<span class="hljs-comment">// Subscribe to the individual neighborhood events - see &quot;Notifications from exaQuark&quot; below</span>
 exaQuark.on(<span class="hljs-string">&quot;neighbor:enter&quot;</span>, {{EntityState}} =&gt; {
   create({{EntityState}}) <span class="hljs-comment">// example function in your app</span>
 })
@@ -294,13 +292,14 @@ exaQuark.on(<span class="hljs-string">&quot;neighbor:updates&quot;</span>, {{Ent
 exaQuark.on(<span class="hljs-string">&quot;data&quot;</span>, data =&gt; {
   handleData(data) <span class="hljs-comment">// example function in your app</span>
 })
-
-<span class="hljs-comment">// Next, connect to the universe!</span>
+</code></pre>
+<h5 id="connect-to-a-universe">Connect to a universe</h5>
+<pre><code class="lang-javascript"><span class="hljs-comment">// Connect to the universe!</span>
 <span class="hljs-keyword">let</span> initialState = {{EntityState}} <span class="hljs-comment">// your user&apos;s position and state</span>
 <span class="hljs-keyword">let</span> neighbors = []
 exaQuark.connect(initialState)
-.then(() =&gt; {
-  neighbors = exaQuark.neighbours() <span class="hljs-comment">// get a full list of your neighbors</span>
+.then(neighbors =&gt; {
+  renderNeighbors(neighbors) <span class="hljs-comment">// example function in your app</span>
 })
 .catch(<span class="hljs-string">&quot;err&quot;</span>, err =&gt; { <span class="hljs-built_in">console</span>.error(err)})
 </code></pre>
@@ -350,7 +349,7 @@ exaQuark.connect(initialState)
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Getting Started","level":"1.3.1","depth":2,"next":{"title":"Notifications from exaQuark","level":"1.3.2","depth":2,"path":"js-sdk-notifications.md","ref":"js-sdk-notifications.md","articles":[]},"previous":{"title":"JS SDK","level":"1.3","depth":1,"path":"js-sdk.md","ref":"js-sdk.md","articles":[{"title":"Getting Started","level":"1.3.1","depth":2,"path":"js-sdk-getting-started.md","ref":"js-sdk-getting-started.md","articles":[]},{"title":"Notifications from exaQuark","level":"1.3.2","depth":2,"path":"js-sdk-notifications.md","ref":"js-sdk-notifications.md","articles":[]},{"title":"Sending updates","level":"1.3.3","depth":2,"path":"js-sdk-send-updates.md","ref":"js-sdk-send-updates.md","articles":[]},{"title":"Advanced","level":"1.3.4","depth":2,"path":"js-sdk-advanced.md","ref":"js-sdk-advanced.md","articles":[]}]},"dir":"ltr"},"config":{"plugins":[],"root":"./docs","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"intro.md","glossary":"GLOSSARY.md","summary":"toc.md"},"variables":{},"gitbook":"3.2.2"},"file":{"path":"js-sdk-getting-started.md","mtime":"2018-02-01T14:40:58.000Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2018-02-01T14:42:37.547Z"},"basePath":".","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Getting Started","level":"1.3.1","depth":2,"next":{"title":"Notifications from exaQuark","level":"1.3.2","depth":2,"path":"js-sdk-notifications.md","ref":"js-sdk-notifications.md","articles":[]},"previous":{"title":"JS SDK","level":"1.3","depth":1,"path":"js-sdk.md","ref":"js-sdk.md","articles":[{"title":"Getting Started","level":"1.3.1","depth":2,"path":"js-sdk-getting-started.md","ref":"js-sdk-getting-started.md","articles":[]},{"title":"Notifications from exaQuark","level":"1.3.2","depth":2,"path":"js-sdk-notifications.md","ref":"js-sdk-notifications.md","articles":[]},{"title":"Sending updates","level":"1.3.3","depth":2,"path":"js-sdk-send-updates.md","ref":"js-sdk-send-updates.md","articles":[]},{"title":"Advanced","level":"1.3.4","depth":2,"path":"js-sdk-advanced.md","ref":"js-sdk-advanced.md","articles":[]}]},"dir":"ltr"},"config":{"plugins":["livereload"],"root":"./docs","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"livereload":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"intro.md","glossary":"GLOSSARY.md","summary":"toc.md"},"variables":{},"gitbook":"3.2.2"},"file":{"path":"js-sdk-getting-started.md","mtime":"2018-02-02T05:21:43.000Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2018-02-02T04:56:45.976Z"},"basePath":".","book":{"language":""}});
         });
     </script>
 </div>
@@ -358,6 +357,10 @@ exaQuark.connect(initialState)
         
     <script src="gitbook/gitbook.js"></script>
     <script src="gitbook/theme.js"></script>
+    
+        
+        <script src="gitbook/gitbook-plugin-livereload/plugin.js"></script>
+        
     
         
         <script src="gitbook/gitbook-plugin-search/search-engine.js"></script>

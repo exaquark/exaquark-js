@@ -32,7 +32,7 @@ Note that the following is a representation of an entity in a dimension
 
 ```javascript
 @typedef EntityState::={
-  userId: 234234, // their userId
+  entityId: 234234, // their entityId
   iid: 29837928734, // instance ID
   dimension: 234234, // which dimension is the entitiy in
   delaunay: 1, // 1 - 5 - delaunay is not required when sending to exaQuark, however you will receive it back for your neighbors
@@ -113,7 +113,7 @@ When you receive this list, it is the latest and most up to date
   neighbors: [
     // list of entities identified by the following
     {
-      userId: 234234, // their userId
+      entityId: 234234, // their entityId
       iid: 29837928734, // instance ID
       dimension: 234234, // which dimension is the entitiy in
     }
@@ -129,7 +129,7 @@ When you receive this list, it is the latest and most up to date
 {
   method: 'data',
   source: {
-    userId: 234234,
+    entityId: 234234,
     iid: 29837928734, // instance ID
     dimension: 1782687123, // which dimension this data came from
   },
@@ -152,7 +152,7 @@ socket.send(JSON.stringify(<EntityState>))
 ```javascript
 socket.send(JSON.stringify({
   method:'data:broadcast',
-  userId: 234234,
+  entityId: 234234,
   iid: 29837928734, // instance ID
   dimension: 234234, // source dimension
   reach: 1, // 1 - 5 delauney
@@ -165,12 +165,12 @@ socket.send(JSON.stringify({
 ```javascript
 socket.send(JSON.stringify({
   method:'data:private',
-  userId: 234234,
+  entityId: 234234,
   iid: 29837928734, // instance ID
   dimension: 234234, // source dimension
   neigbours: [
     {
-      userId: 7687686,
+      entityId: 7687686,
       iid: 29837928734, // instance ID
     }
   ]
@@ -184,7 +184,7 @@ socket.send(JSON.stringify({
 ```javascript
 socket.send(JSON.stringify({
   method:'ask:neighbors',
-  userId: 234234,
+  entityId: 234234,
   iid: 29837928734, // instance ID
 }))
 ```

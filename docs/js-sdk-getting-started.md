@@ -27,26 +27,20 @@ We have used `{{EntityState}}` to make the docs more readable.
 
 ```javascript
 const exaQuarkJs = require('exaquark-js')
-var enterUrl = 'https://enter.exaquark.net' // required
 var apiKey = 'YOUR_API_KEY' // required
 let options = {
-  userId: USER_ID, // required
+  entityId: ENTITY_ID, // required
   universe: UNIVERSE_ID, // optional: defaults to sandbox
   transport: 'WebSocket', // optional: WebSocket | UDP
   logger: (msg, data) => { console.log(msg, data) }, // optional: attach your own logger
 }
 var iid = null // exaQuark will generate - A user can have multiple instance ID's (eg, one for their phone, one for their AR glasses)
-var exaQuark = new exaQuarkJs(enterUrl, apiKey, options)
+var exaQuark = new exaQuarkJs(apiKey, options)
 .then(response => {
   iid = response.iid
 })
-```
 
-
-##### Connect to a universe
-
-```javascript
-// First, subscribe to the individual neighborhood events - see "Notifications from exaQuark" below
+// Subscribe to the individual neighborhood events - see "Notifications from exaQuark" below
 exaQuark.on("neighbor:enter", {{EntityState}} => {
   create({{EntityState}}) // example function in your app
 })
@@ -59,13 +53,18 @@ exaQuark.on("neighbor:updates", {{EntityState}} => {
 exaQuark.on("data", data => {
   handleData(data) // example function in your app
 })
+```
 
-// Next, connect to the universe!
+
+##### Connect to a universe
+
+```javascript
+// Connect to the universe!
 let initialState = {{EntityState}} // your user's position and state
 let neighbors = []
 exaQuark.connect(initialState)
-.then(() => {
-  neighbors = exaQuark.neighbours() // get a full list of your neighbors
+.then(neighbors => {
+  renderNeighbors(neighbors) // example function in your app
 })
 .catch("err", err => { console.error(err)})
 
