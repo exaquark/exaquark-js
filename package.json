@@ -1,6 +1,6 @@
 {
   "name": "exaquark-js",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "JS wrapper for exaquark.com",
   "main": "./lib/index.js",
   "scripts": {
@@ -68,8 +68,6 @@
     "rimraf": "^2.5.4"
   },
   "dependencies": {
-    "axios": "^0.17.1",
-    "websocket": "^1.0.25",
-    "xmlhttprequest": "^1.8.0"
+    "websocket": "^1.0.25"
   }
 }
