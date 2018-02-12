@@ -1,16 +1,21 @@
-# Why? [![Build Status](https://travis-ci.org/Travelport-Ukraine/npm-module-boilerplate.svg?branch=master)](https://travis-ci.org/Travelport-Ukraine/npm-module-boilerplate)
-:page_with_curl: Boilerplate for npm/node module. Write with ES6 - have compatibility with all node versions.
+# exaQuark JS
 
-This boilerplate is for people who want write code using all ES6 features ( and stage-2 ) but also want/need backwards compatibility with old node versions. 
+JS library for connecting to exaquark.com
 
-# Features
-* Build with [Babel](https://babeljs.io). (ES6 -> ES5)
-* Test with [mocha](https://mochajs.org).
-* Cover with [istanbul](https://github.com/gotwarlost/istanbul).
-* Check with [eslint](eslint.org).
-* Deploy with [Travis](travis-ci.org).
+### Getting started
 
-# Commands
+```javascript
+npm install --save exaquark-js
+```
+
+
+
+
+
+## Internals
+
+#### Commands
+
 - `npm run clean` - Remove `lib/` directory
 - `npm test` - Run tests. Tests can be written with ES6 (WOW!)
 - `npm test:watch` - You can even re-run tests on file changes!
@@ -20,6 +25,8 @@ This boilerplate is for people who want write code using all ES6 features ( and 
 - `npm run build` - Do some magic with ES6 to create ES5 code.
 - `npm run prepublish` - Hook for npm. Do all the checks before publishing you module.
 
-# Installation
-Just clone this repo and remove `.git` folder.
 
+
+TODOS:
+
+- [ ] add API key - the connection should be a POST request?
