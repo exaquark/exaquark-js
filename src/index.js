@@ -51,7 +51,7 @@ class exaQuark {
     this.neighborHash = {}
     this.params = options.params || {}
     this.state = null // holds the latest client state
-    this.transport = WS
+    this.transport = WebSocket
 
     // this.heartbeatTimer       = null
     // this.pendingHeartbeatRef  = null
@@ -76,7 +76,7 @@ class exaQuark {
         this.state = initialState
 
         let encodedState = encodeURIComponent(JSON.stringify(initialState))
-        this.conn = new WS(`${this.entryPoint}?state=${encodedState}`)
+        this.conn = new WebSocket(`${this.entryPoint}?state=${encodedState}`)
         this.conn.onopen = data => this.onConnOpen(data)
         this.conn.onerror = error => this.onConnError(error)
         this.conn.onmessage = event => this.onConnMessage(event)
