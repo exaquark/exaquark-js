@@ -8,7 +8,9 @@ JS library for connecting to exaquark.com
 npm install --save exaquark-js
 ```
 
+### Documentation
 
+See full docs at [https://docs.exaquark.io/](https://docs.exaquark.io/)
 
 
 
@@ -26,7 +28,6 @@ npm install --save exaquark-js
 - `npm run prepublish` - Hook for npm. Do all the checks before publishing you module.
 
 
+#### Demo
 
-TODOS:
-
-- [ ] add API key - the connection should be a POST request?
+You can see a demo of the library in action in `demo`. See `demo/README.md` for instructions.
