@@ -61,6 +61,6 @@
     "rimraf": "^2.5.4"
   },
   "dependencies": {
-    "websocket": "^1.0.25"
+    "ws": "^4.0.0"
   }
 }

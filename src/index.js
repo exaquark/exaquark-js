@@ -1,7 +1,5 @@
 import { log } from './utils/private'
-const WebSocket = require('websocket').client
-
-const WS = WebSocket || {} // @TODO: modify to work with console
+const WebSocket = require('ws')
 
 const loadJSONP = (() => {
   let unique = 0
