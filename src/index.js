@@ -1,5 +1,4 @@
 import { log } from './utils/private'
-const WebSocket = require('ws')
 
 const loadJSONP = (() => {
   let unique = 0
@@ -51,7 +50,7 @@ class exaQuark {
     this.neighborHash = {}
     this.params = options.params || {}
     this.state = null // holds the latest client state
-    this.transport = WebSocket
+    this.transport = options.transport || window.WebSocket
 
     // this.heartbeatTimer       = null
     // this.pendingHeartbeatRef  = null
@@ -76,7 +75,7 @@ class exaQuark {
         this.state = initialState
 
         let encodedState = encodeURIComponent(JSON.stringify(initialState))
-        this.conn = new WebSocket(`${this.entryPoint}?state=${encodedState}`)
+        this.conn = new this.transport(`${this.entryPoint}?state=${encodedState}`) // eslint-disable-line 
         this.conn.onopen = data => this.onConnOpen(data)
         this.conn.onerror = error => this.onConnError(error)
         this.conn.onmessage = event => this.onConnMessage(event)

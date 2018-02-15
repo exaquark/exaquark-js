@@ -1,6 +1,6 @@
 {
   "name": "exaquark-js",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "JS wrapper for exaquark.com",
   "main": "./lib/index.js",
   "scripts": {
@@ -60,7 +60,5 @@
     "mocha": "^3.0.2",
     "rimraf": "^2.5.4"
   },
-  "dependencies": {
-    "ws": "^4.0.0"
-  }
+  "dependencies": {}
 }
