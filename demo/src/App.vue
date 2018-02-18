@@ -23,7 +23,8 @@
 
 <script>
 import ExaQuarkJs from './../../lib/index.js'
-const exaquarkUrl = 'http://163.172.171.14:9999' // https://enter.exaquark.net
+import exaQuarkHelpers from './../../lib/helpers'
+const exaquarkUrl = 'https://enter.exaquark.com'
 let exaQuark = new ExaQuarkJs(exaquarkUrl, apiKey, options)
 var apiKey = 'YOUR_API_KEY' // required
 let options = {
@@ -86,8 +87,8 @@ export default {
       return this.entityState
     },
     calcDistance: function (neighbor) {
-      console.log('exaQuark.', exaQuark.getNeighborsByMaxDistance(10000, {listType:'Array'}))
-      return exaQuark.getDistanceBetweenEntities(this.entityState, neighbor)
+      console.log('exaQuark.', exaQuarkHelpers.getNeighborsByMaxDistance(this.entityState, this.neighbors, 10000))
+      return exaQuarkHelpers.getDistanceBetweenEntities(this.entityState, neighbor)
     }
   }
 }

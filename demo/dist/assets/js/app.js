@@ -10778,21 +10778,6 @@ var _exports = module.exports = {};
 _exports.log = function (logger, msg, data) {
   logger(msg, data);
 };
-
-// Converts a dictionary to an array
-_exports.dictionaryToArray = function (dict) {
-  return Object.keys(dict).map(function (key) {
-    return dict[key];
-  });
-};
-
-// Converts a dictionary to an array
-_exports.arrayToDictionary = function (arr) {
-  return arr.reduce(function (map, obj) {
-    map[obj.iid] = obj;
-    return map;
-  }, {});
-};
 });
 
 var distance = createCommonjsModule(function (module) {
@@ -10808,6 +10793,46 @@ _exports.distanceOnSphere = function (lat1, lon1, lat2, lon2) {
   var a = 0.5 - c((lat2 - lat1) * p) / 2 + c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
 
   return diameter * Math.asin(Math.sqrt(a));
+};
+});
+
+var helpers = createCommonjsModule(function (module) {
+var _exports = module.exports = {};
+
+// Converts a dictionary to an array
+_exports.dictionaryToArray = function (dict) {
+  return Object.keys(dict).map(function (key) {
+    return dict[key];
+  });
+};
+
+// Converts a dictionary to an array
+_exports.arrayToDictionary = function (arr) {
+  return arr.reduce(function (map, obj) {
+    map[obj.iid] = obj;
+    return map;
+  }, {});
+};
+
+/**
+* Returns the distance between two entities
+* @param {string} [options.units] - the unit of measurement. Defaults to meters
+*/
+_exports.getDistanceBetweenEntities = function (entityOne, entityTwo, options) {
+  return (0, distance.distanceOnSphere)(entityOne.geo.lat, entityOne.geo.lng, entityTwo.geo.lat, entityTwo.geo.lng);
+};
+
+/**
+* Gets a list of neighbors within a specified distance
+* @param {Array} a list of neighbors that you want to check
+* @param {number} distance
+* @param {string} [options.units] - the unit of measurement. Defaults to meters
+* @returns Array of neighbors
+*/
+_exports.getNeighborsByMaxDistance = function (entityState, arrayOfNeighbors, distance$$1) {
+  return arrayOfNeighbors.filter(function (x) {
+    return distance$$1 >= (0, distance.distanceOnSphere)(entityState.geo.lat, entityState.geo.lng, x.geo.lat, x.geo.lng);
+  });
 };
 });
 
@@ -11115,7 +11140,7 @@ var exaQuark = function () {
   }, {
     key: 'neighbors',
     value: function neighbors(format) {
-      if (format && format === 'Array') { return (0, _private.dictionaryToArray)(this.neighborHash); }else { return this.neighborHash; }
+      return (0, helpers.dictionaryToArray)(this.neighborHash);
     }
   }, {
     key: 'deepClone',
@@ -11146,44 +11171,15 @@ var exaQuark = function () {
   }, {
     key: 'askForNeighbors',
     value: function askForNeighbors() {
+      if (!this.canPush()) {
+        return;
+      }
       var payload = {
         method: 'ask:neighbor',
         iid: this.iid,
         entityId: this.entityId
       };
       this.conn.send(JSON.stringify(payload));
-    }
-
-    /**
-    * Returns the distance between two entities
-    * @param {string} [options.units] - the unit of measurement. Defaults to meters
-    */
-
-  }, {
-    key: 'getDistanceBetweenEntities',
-    value: function getDistanceBetweenEntities(entityOne, entityTwo, options) {
-      return (0, distance.distanceOnSphere)(entityOne.geo.lat, entityOne.geo.lng, entityTwo.geo.lat, entityTwo.geo.lng);
-    }
-
-    /**
-    * Gets a list of neighbors within a specified distance
-    * @param {number} distance
-    * @param {string} [options.listType] - the list format to return. Defaults to Dictionary. Options: "Array" | "Dict"
-    * @param {string} [options.units] - the unit of measurement. Defaults to meters
-    */
-
-  }, {
-    key: 'getNeighborsByMaxDistance',
-    value: function getNeighborsByMaxDistance(distance$$1) {
-      var _this6 = this;
-
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-      var filteredList = (0, _private.dictionaryToArray)(this.neighborHash).filter(function (x) {
-        return distance$$1 >= (0, distance.distanceOnSphere)(_this6.state.geo.lat, _this6.state.geo.lng, x.geo.lat, x.geo.lng);
-      });
-
-      if (options.listType === 'Array') { return filteredList; }else { return (0, _private.arrayToDictionary)(filteredList); }
     }
   }]);
 
@@ -11196,7 +11192,7 @@ module.exports = exports['default'];
 
 var ExaQuarkJs = unwrapExports(lib);
 
-var exaquarkUrl = 'http://163.172.171.14:9999'; // https://enter.exaquark.net
+var exaquarkUrl = 'https://enter.exaquark.com';
 var exaQuark = new ExaQuarkJs(exaquarkUrl, apiKey, options);
 var apiKey = 'YOUR_API_KEY'; // required
 var options = {
@@ -11263,8 +11259,8 @@ var App = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm.
       return this.entityState
     },
     calcDistance: function (neighbor) {
-      console.log('exaQuark.', exaQuark.getNeighborsByMaxDistance(10000, {listType:'Array'}));
-      return exaQuark.getDistanceBetweenEntities(this.entityState, neighbor)
+      console.log('exaQuark.', helpers.getNeighborsByMaxDistance(this.entityState, this.neighbors, 10000));
+      return helpers.getDistanceBetweenEntities(this.entityState, neighbor)
     }
   }
 }
