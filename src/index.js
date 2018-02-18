@@ -1,4 +1,5 @@
-import { log } from './utils/private'
+import { log, dictionaryToArray, arrayToDictionary } from './utils/private'
+import { distanceOnSphere } from './utils/distance'
 
 const loadJSONP = (() => {
   let unique = 0
@@ -136,13 +137,13 @@ class exaQuark {
     let data = JSON.parse(rawMessage.data)
     switch (data.method) {
       case 'neighbors': // list of neighbors
-        this.onNeighborsMessage(data.neighbors)
+        if (data.neighbors) this.onNeighborsMessage(data.neighbors)
         break
       case 'updates': // moved etc
-        this.onUpdatesMessage(data.neighbors)
+        if (data.neighbors) this.onUpdatesMessage(data.neighbors)
         break
       case 'removes': // leaving neighborhood
-        this.onRemovesMessage(data.neighbors)
+        if (data.neighbors) this.onRemovesMessage(data.neighbors)
         break
     }
   }
@@ -193,6 +194,7 @@ class exaQuark {
     delete this.neighborHash[n.iid]
   }
   push (eventName, payload) {
+    if (!this.canPush()) { return }
     switch (eventName) {
       case 'update:state':
         this.sendState(payload)
@@ -206,10 +208,10 @@ class exaQuark {
     }
   }
   canPush () {
-    return !!this.conn
+    return !!this.conn && (this.conn.readyState === this.conn.OPEN)
   }
   neighbors (format) {
-    if (format && format === 'Array') return Object.keys(this.neighborHash).map(key => this.neighborHash[key])
+    if (format && format === 'Array') return dictionaryToArray(this.neighborHash)
     else return this.neighborHash
   }
   deepClone (object) {
@@ -222,7 +224,7 @@ class exaQuark {
   }
   sendState (state) {
     this.state = state
-    log(this.logger, 'sending update', state)
+    // log(this.logger, 'sending update', state)
     let payload = {
       method: 'update',
       state: state
@@ -237,6 +239,28 @@ class exaQuark {
       entityId: this.entityId
     }
     this.conn.send(JSON.stringify(payload))
+  }
+
+  /**
+  * Returns the distance between two entities
+  * @param {string} [options.units] - the unit of measurement. Defaults to meters
+  */
+  getDistanceBetweenEntities (entityOne, entityTwo, options) {
+    return distanceOnSphere(entityOne.geo.lat, entityOne.geo.lng, entityTwo.geo.lat, entityTwo.geo.lng)
+  }
+
+  /**
+  * Gets a list of neighbors within a specified distance
+  * @param {number} distance
+  * @param {string} [options.listType] - the list format to return. Defaults to Dictionary. Options: "Array" | "Dict"
+  * @param {string} [options.units] - the unit of measurement. Defaults to meters
+  */
+  getNeighborsByMaxDistance (distance, options = {}) {
+    let filteredList = dictionaryToArray(this.neighborHash)
+      .filter(x => distance >= distanceOnSphere(this.state.geo.lat, this.state.geo.lng, x.geo.lat, x.geo.lng))
+
+    if (options.listType === 'Array') return filteredList
+    else return arrayToDictionary(filteredList)
   }
 }
 export default exaQuark

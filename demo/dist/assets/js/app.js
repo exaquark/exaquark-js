@@ -10778,6 +10778,37 @@ var _exports = module.exports = {};
 _exports.log = function (logger, msg, data) {
   logger(msg, data);
 };
+
+// Converts a dictionary to an array
+_exports.dictionaryToArray = function (dict) {
+  return Object.keys(dict).map(function (key) {
+    return dict[key];
+  });
+};
+
+// Converts a dictionary to an array
+_exports.arrayToDictionary = function (arr) {
+  return arr.reduce(function (map, obj) {
+    map[obj.iid] = obj;
+    return map;
+  }, {});
+};
+});
+
+var distance = createCommonjsModule(function (module) {
+var _exports = module.exports = {};
+
+// Calculates the distance between a set of Lat/Lngs
+_exports.distanceOnSphere = function (lat1, lon1, lat2, lon2) {
+  var radius = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 6371;
+
+  var p = 0.017453292519943295; // Math.PI / 180
+  var c = Math.cos;
+  var diameter = 2 * radius;
+  var a = 0.5 - c((lat2 - lat1) * p) / 2 + c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+
+  return diameter * Math.asin(Math.sqrt(a));
+};
 });
 
 var lib = createCommonjsModule(function (module, exports) {
@@ -10786,6 +10817,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) { descriptor.writable = true; } Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) { defineProperties(Constructor.prototype, protoProps); } if (staticProps) { defineProperties(Constructor, staticProps); } return Constructor; }; }();
+
+
 
 
 
@@ -10969,15 +11002,15 @@ var exaQuark = function () {
       switch (data.method) {
         case 'neighbors':
           // list of neighbors
-          this.onNeighborsMessage(data.neighbors);
+          if (data.neighbors) { this.onNeighborsMessage(data.neighbors); }
           break;
         case 'updates':
           // moved etc
-          this.onUpdatesMessage(data.neighbors);
+          if (data.neighbors) { this.onUpdatesMessage(data.neighbors); }
           break;
         case 'removes':
           // leaving neighborhood
-          this.onRemovesMessage(data.neighbors);
+          if (data.neighbors) { this.onRemovesMessage(data.neighbors); }
           break;
       }
     }
@@ -11059,6 +11092,9 @@ var exaQuark = function () {
   }, {
     key: 'push',
     value: function push(eventName, payload) {
+      if (!this.canPush()) {
+        return;
+      }
       switch (eventName) {
         case 'update:state':
           this.sendState(payload);
@@ -11074,16 +11110,12 @@ var exaQuark = function () {
   }, {
     key: 'canPush',
     value: function canPush() {
-      return !!this.conn;
+      return !!this.conn && this.conn.readyState === this.conn.OPEN;
     }
   }, {
     key: 'neighbors',
     value: function neighbors(format) {
-      var _this6 = this;
-
-      if (format && format === 'Array') { return Object.keys(this.neighborHash).map(function (key) {
-        return _this6.neighborHash[key];
-      }); }else { return this.neighborHash; }
+      if (format && format === 'Array') { return (0, _private.dictionaryToArray)(this.neighborHash); }else { return this.neighborHash; }
     }
   }, {
     key: 'deepClone',
@@ -11103,7 +11135,7 @@ var exaQuark = function () {
     key: 'sendState',
     value: function sendState(state) {
       this.state = state;
-      (0, _private.log)(this.logger, 'sending update', state);
+      // log(this.logger, 'sending update', state)
       var payload = {
         method: 'update',
         state: state
@@ -11121,6 +11153,38 @@ var exaQuark = function () {
       };
       this.conn.send(JSON.stringify(payload));
     }
+
+    /**
+    * Returns the distance between two entities
+    * @param {string} [options.units] - the unit of measurement. Defaults to meters
+    */
+
+  }, {
+    key: 'getDistanceBetweenEntities',
+    value: function getDistanceBetweenEntities(entityOne, entityTwo, options) {
+      return (0, distance.distanceOnSphere)(entityOne.geo.lat, entityOne.geo.lng, entityTwo.geo.lat, entityTwo.geo.lng);
+    }
+
+    /**
+    * Gets a list of neighbors within a specified distance
+    * @param {number} distance
+    * @param {string} [options.listType] - the list format to return. Defaults to Dictionary. Options: "Array" | "Dict"
+    * @param {string} [options.units] - the unit of measurement. Defaults to meters
+    */
+
+  }, {
+    key: 'getNeighborsByMaxDistance',
+    value: function getNeighborsByMaxDistance(distance$$1) {
+      var _this6 = this;
+
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+      var filteredList = (0, _private.dictionaryToArray)(this.neighborHash).filter(function (x) {
+        return distance$$1 >= (0, distance.distanceOnSphere)(_this6.state.geo.lat, _this6.state.geo.lng, x.geo.lat, x.geo.lng);
+      });
+
+      if (options.listType === 'Array') { return filteredList; }else { return (0, _private.arrayToDictionary)(filteredList); }
+    }
   }]);
 
   return exaQuark;
@@ -11132,7 +11196,18 @@ module.exports = exports['default'];
 
 var ExaQuarkJs = unwrapExports(lib);
 
-var App = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"app"},[_c('div',[_vm._v(" Open Multiple tabs "),_c('ul',_vm._l((_vm.neighbors),function(n){return _c('li',{key:n.iid},[_vm._v("iid: "+_vm._s(n.iid))])}))])])},staticRenderFns: [],
+var exaquarkUrl = 'http://163.172.171.14:9999'; // https://enter.exaquark.net
+var exaQuark = new ExaQuarkJs(exaquarkUrl, apiKey, options);
+var apiKey = 'YOUR_API_KEY'; // required
+var options = {
+  entityId: 'ENTITY_ID', // required
+  universe: 'UNIVERSE_ID', // optional: defaults to sandbox
+  transport: 'WebSocket' // optional: WebSocket | UDP
+  // logger: (msg, data) => { console.log(msg, data) } // optional: attach your own logger
+};
+
+
+var App = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"app"},[_c('div',{},[_c('h3',[_vm._v("My details:")]),_vm._v(" "),_c('p',[_vm._v("IID: "+_vm._s(this.iid))]),_vm._v(" "),_c('p',[_vm._v("Lat: "+_vm._s(this.entityState.geo.lat))]),_vm._v(" "),_c('p',[_vm._v("Lng: "+_vm._s(this.entityState.geo.lng))])]),_vm._v(" "),_c('div',[_c('h3',[_vm._v("Open Multiple tabs to see neighbors")]),_vm._v(" "),_c('ul',_vm._l((_vm.neighbors),function(n){return _c('li',{key:n.iid},[_vm._v(" iid: "+_vm._s(n.iid)+" "),_c('ul',[_c('li',[_vm._v("Distance: "+_vm._s(_vm.calcDistance(n)))])])])}))])])},staticRenderFns: [],
   name: 'app',
   components: { },
   data: function () {
@@ -11144,8 +11219,8 @@ var App = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm.
         universe: 'MOCK_UNIVERSE_ID', // {string} required:  which universe is the entitiy in
         delaunay: 1, // {number} 1 - 5 - delaunay is the "distance" of your neighbor. It isn't required when sending to exaQuark, however you will receive it in notifications about your neighbors
         geo: {
-          lat: 1.2883, // {double} required: latitude
-          lng: 103.8475, // {double} required: longitude
+          lat: (Math.random() * 180 - 90).toFixed(3), // {double} required: latitude
+          lng: (Math.random() * 360 - 180).toFixed(3), // {double} required: longitude
           altitude: 0, // {double} optional: altitude in meters - can be negative
           rotation: [ 2, 5, 19 ] // {Array of doubles} optional: all in degrees. Default facing north
         },
@@ -11166,19 +11241,11 @@ var App = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm.
   created: function () {
     var this$1 = this;
 
-    var exaquarkUrl = 'http://163.172.171.14:9999'; // https://enter.exaquark.net
-
-    var apiKey = 'YOUR_API_KEY'; // required
-    var options = {
-      entityId: 'ENTITY_ID', // required
-      universe: 'UNIVERSE_ID', // optional: defaults to sandbox
-      transport: 'WebSocket' // optional: WebSocket | UDP
-      // logger: (msg, data) => { console.log(msg, data) } // optional: attach your own logger
-    };
-
-    var exaQuark = new ExaQuarkJs(exaquarkUrl, apiKey, options);
     exaQuark.bind(this.getState);
     exaQuark.on('neighbor:enter', function (entityState) {
+      this$1.neighbors = exaQuark.neighbors('Array');
+    });
+    exaQuark.on('neighbor:updates', function (entityState) {
       this$1.neighbors = exaQuark.neighbors('Array');
     });
     exaQuark.on('neighbor:leave', function (entityState) {
@@ -11188,12 +11255,16 @@ var App = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm.
       var iid = ref.iid;
 
       this$1.iid = iid;
-      exaQuark.push('ask:neighbours');
+      exaQuark.push('ask:neighbors');
     }).catch('err', function (err) { console.error(err); });
   },
   methods: {
     getState: function () {
       return this.entityState
+    },
+    calcDistance: function (neighbor) {
+      console.log('exaQuark.', exaQuark.getNeighborsByMaxDistance(10000, {listType:'Array'}));
+      return exaQuark.getDistanceBetweenEntities(this.entityState, neighbor)
     }
   }
 }

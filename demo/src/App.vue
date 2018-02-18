@@ -1,9 +1,21 @@
 <template>
   <div class="app">
+    <div class="">
+      <h3>My details:</h3>
+
+      <p>IID: {{this.iid}}</p>
+      <p>Lat: {{this.entityState.geo.lat}}</p>
+      <p>Lng: {{this.entityState.geo.lng}}</p>
+    </div>
     <div>
-      Open Multiple tabs
+      <h3>Open Multiple tabs to see neighbors</h3>
       <ul>
-        <li v-for="n in neighbors" :key="n.iid">iid: {{n.iid}}</li>
+        <li v-for="n in neighbors" :key="n.iid">
+          iid: {{n.iid}}
+          <ul>
+            <li>Distance: {{calcDistance(n)}}</li>
+          </ul>
+        </li>
       </ul>
     </div>
   </div>
@@ -11,6 +23,17 @@
 
 <script>
 import ExaQuarkJs from './../../lib/index.js'
+const exaquarkUrl = 'http://163.172.171.14:9999' // https://enter.exaquark.net
+let exaQuark = new ExaQuarkJs(exaquarkUrl, apiKey, options)
+var apiKey = 'YOUR_API_KEY' // required
+let options = {
+  entityId: 'ENTITY_ID', // required
+  universe: 'UNIVERSE_ID', // optional: defaults to sandbox
+  transport: 'WebSocket' // optional: WebSocket | UDP
+  // logger: (msg, data) => { console.log(msg, data) } // optional: attach your own logger
+}
+
+
 export default {
   name: 'app',
   components: { },
@@ -23,8 +46,8 @@ export default {
         universe: 'MOCK_UNIVERSE_ID', // {string} required:  which universe is the entitiy in
         delaunay: 1, // {number} 1 - 5 - delaunay is the "distance" of your neighbor. It isn't required when sending to exaQuark, however you will receive it in notifications about your neighbors
         geo: {
-          lat: 1.2883, // {double} required: latitude
-          lng: 103.8475, // {double} required: longitude
+          lat: (Math.random() * 180 - 90).toFixed(3), // {double} required: latitude
+          lng: (Math.random() * 360 - 180).toFixed(3), // {double} required: longitude
           altitude: 0, // {double} optional: altitude in meters - can be negative
           rotation: [ 2, 5, 19 ] // {Array of doubles} optional: all in degrees. Default facing north
         },
@@ -43,19 +66,11 @@ export default {
     }
   },
   created: function () {
-    const exaquarkUrl = 'http://163.172.171.14:9999' // https://enter.exaquark.net
-
-    var apiKey = 'YOUR_API_KEY' // required
-    let options = {
-      entityId: 'ENTITY_ID', // required
-      universe: 'UNIVERSE_ID', // optional: defaults to sandbox
-      transport: 'WebSocket' // optional: WebSocket | UDP
-      // logger: (msg, data) => { console.log(msg, data) } // optional: attach your own logger
-    }
-
-    let exaQuark = new ExaQuarkJs(exaquarkUrl, apiKey, options)
     exaQuark.bind(this.getState)
     exaQuark.on('neighbor:enter', entityState => {
+      this.neighbors = exaQuark.neighbors('Array')
+    })
+    exaQuark.on('neighbor:updates', entityState => {
       this.neighbors = exaQuark.neighbors('Array')
     })
     exaQuark.on('neighbor:leave', entityState => {
@@ -63,12 +78,16 @@ export default {
     })
     exaQuark.connect(this.entityState).then(({ iid }) => {
       this.iid = iid
-      exaQuark.push('ask:neighbours')
+      exaQuark.push('ask:neighbors')
     }).catch('err', err => { console.error(err) })
   },
   methods: {
     getState: function () {
       return this.entityState
+    },
+    calcDistance: function (neighbor) {
+      console.log('exaQuark.', exaQuark.getNeighborsByMaxDistance(10000, {listType:'Array'}))
+      return exaQuark.getDistanceBetweenEntities(this.entityState, neighbor)
     }
   }
 }
