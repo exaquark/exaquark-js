@@ -31,3 +31,9 @@ See full docs at [https://docs.exaquark.io/](https://docs.exaquark.io/)
 #### Demo
 
 You can see a demo of the library in action in `demo`. See `demo/README.md` for instructions.
+
+## ChangeLog
+
+##### 1.0.7
+
+- Added `getDistanceBetweenEntities()` & `getNeighborsByMaxDistance()`
