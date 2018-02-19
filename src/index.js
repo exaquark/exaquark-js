@@ -130,6 +130,7 @@ class exaQuark {
   }
   onConnClose (event) {
     log(this.logger, 'onConnClose', event)
+    this.disconnect()
     clearInterval(this.clientStateInterval)
   }
   onConnMessage (rawMessage) {
@@ -182,16 +183,16 @@ class exaQuark {
     return entity.iid === this.iid
   }
   addNeighbor (n) {
-    this.trigger('neighbor:enter', n)
     this.neighborHash[n.iid] = n
+    this.trigger('neighbor:enter', n)
   }
   updateNeighbor (n) {
-    this.trigger('neighbor:updates', n)
     this.neighborHash[n.iid] = n
+    this.trigger('neighbor:updates', n)
   }
   removeNeighbor (n) {
-    this.trigger('neighbor:remove', n)
     delete this.neighborHash[n.iid]
+    this.trigger('neighbor:leave', n)
   }
   push (eventName, payload) {
     if (!this.canPush()) { return }

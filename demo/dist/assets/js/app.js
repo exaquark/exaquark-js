@@ -10799,7 +10799,10 @@ _exports.distanceOnSphere = function (lat1, lon1, lat2, lon2) {
 var helpers = createCommonjsModule(function (module) {
 var _exports = module.exports = {};
 
-// Converts a dictionary to an array
+/**
+* Converts a dictionary to an array
+* @param {Object} dict
+*/
 _exports.dictionaryToArray = function (dict) {
   return Object.keys(dict).map(function (key) {
     return dict[key];
@@ -10807,6 +10810,10 @@ _exports.dictionaryToArray = function (dict) {
 };
 
 // Converts a dictionary to an array
+/**
+* Converts a array to an dictionary
+* @param {Array} arr
+*/
 _exports.arrayToDictionary = function (arr) {
   return arr.reduce(function (map, obj) {
     map[obj.iid] = obj;
@@ -10902,7 +10909,7 @@ var exaQuark = function () {
     this.neighborList = [];
     this.neighborHash = {};
     this.params = options.params || {};
-    this.state = null; // holds the latest client state
+    this.state = null; // holds the latest client entityState
 
     // this.heartbeatTimer       = null
     // this.pendingHeartbeatRef  = null
@@ -10935,7 +10942,7 @@ var exaQuark = function () {
           _this.state = initialState;
 
           var encodedState = encodeURIComponent(JSON.stringify(initialState));
-          _this.conn = new WebSocket(_this.entryPoint + '?state=' + encodedState); // eslint-disable-line
+          _this.conn = new WebSocket(_this.entryPoint + '?state=' + encodedState);
           _this.conn.onopen = function (data) {
             return _this.onConnOpen(data);
           };
@@ -10962,7 +10969,9 @@ var exaQuark = function () {
 
   }, {
     key: 'disconnect',
-    value: function disconnect(callback, code, reason) {}
+    value: function disconnect(callback, code, reason) {
+      this.conn.close();
+    }
 
     /**
      * Bind an event to the socket.
@@ -11017,6 +11026,7 @@ var exaQuark = function () {
     key: 'onConnClose',
     value: function onConnClose(event) {
       (0, _private.log)(this.logger, 'onConnClose', event);
+      this.disconnect();
       clearInterval(this.clientStateInterval);
     }
   }, {
@@ -11099,20 +11109,20 @@ var exaQuark = function () {
   }, {
     key: 'addNeighbor',
     value: function addNeighbor(n) {
-      this.trigger('neighbor:enter', n);
       this.neighborHash[n.iid] = n;
+      this.trigger('neighbor:enter', n);
     }
   }, {
     key: 'updateNeighbor',
     value: function updateNeighbor(n) {
-      this.trigger('neighbor:updates', n);
       this.neighborHash[n.iid] = n;
+      this.trigger('neighbor:updates', n);
     }
   }, {
     key: 'removeNeighbor',
     value: function removeNeighbor(n) {
-      this.trigger('neighbor:remove', n);
       delete this.neighborHash[n.iid];
+      this.trigger('neighbor:leave', n);
     }
   }, {
     key: 'push',
@@ -11203,7 +11213,7 @@ var options = {
 };
 
 
-var App = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"app"},[_c('div',{},[_c('h3',[_vm._v("My details:")]),_vm._v(" "),_c('p',[_vm._v("IID: "+_vm._s(this.iid))]),_vm._v(" "),_c('p',[_vm._v("Lat: "+_vm._s(this.entityState.geo.lat))]),_vm._v(" "),_c('p',[_vm._v("Lng: "+_vm._s(this.entityState.geo.lng))])]),_vm._v(" "),_c('div',[_c('h3',[_vm._v("Open Multiple tabs to see neighbors")]),_vm._v(" "),_c('ul',_vm._l((_vm.neighbors),function(n){return _c('li',{key:n.iid},[_vm._v(" iid: "+_vm._s(n.iid)+" "),_c('ul',[_c('li',[_vm._v("Distance: "+_vm._s(_vm.calcDistance(n)))])])])}))])])},staticRenderFns: [],
+var App = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"app"},[_c('div',{},[_c('h3',[_vm._v("My details:")]),_vm._v(" "),_c('p',[_vm._v("IID: "+_vm._s(this.iid))]),_vm._v(" "),_c('p',[_vm._v("Lat: "+_vm._s(this.entityState.geo.lat))]),_vm._v(" "),_c('p',[_vm._v("Lng: "+_vm._s(this.entityState.geo.lng))])]),_vm._v(" "),_c('div',[_c('h3',[_vm._v("Open Multiple tabs to see neighbors")]),_vm._v(" "),_c('ul',_vm._l((_vm.neighbors),function(n){return _c('li',{key:n.iid},[_vm._v(" iid: "+_vm._s(n.iid)+" "),_c('ul',[_c('li',[_vm._v("Distance: "+_vm._s(_vm.calcDistance(n)))]),_vm._v(" "),(n.customState && n.customState.message)?_c('li',[_vm._v("Custom State Message: "+_vm._s(n.customState.message))]):_vm._e()])])}))])])},staticRenderFns: [],
   name: 'app',
   components: { },
   data: function () {
@@ -11221,15 +11231,16 @@ var App = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm.
           rotation: [ 2, 5, 19 ] // {Array of doubles} optional: all in degrees. Default facing north
         },
         properties: {
-          avatarId: 'MOCK_AVATAR_ID', // {string} required: the avatar your user has selected
+          displayName: 'MY_NAME_IS', // {string} required: the avatar your user has selected
           sound: true, // {boolean} optional: defaults to true. false === mute
           mic: true, // {boolean} optional: defaults to true. false === muted microphone
           virtualPosition: false, // {boolean} optional: defaults to false. Is this person physically in the position that they are in the digital universe. (true === they are not physically present there)
-          entityType: 'HUMAN' // {string} optional: defaults to 'human'. Options: 'HUMAN' | 'BOT' | 'DRONE'
+          entityType: 'HUMAN' // {string} optional: defaults to 'HUMAN'. Options: 'HUMAN' | 'BOT' | 'DRONE'
         },
-        universeState: {
+        customState: {
           // developer defined state for their universe
           // you can use this to pass arbitrary data to other entities in your neighborhood
+          message: 'Hello world'
         }
       }
     }
@@ -11242,6 +11253,7 @@ var App = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm.
       this$1.neighbors = exaQuark.neighbors('Array');
     });
     exaQuark.on('neighbor:updates', function (entityState) {
+      console.log('exaQuark.', helpers.getNeighborsByMaxDistance(this$1.entityState, this$1.neighbors, 10000));
       this$1.neighbors = exaQuark.neighbors('Array');
     });
     exaQuark.on('neighbor:leave', function (entityState) {
@@ -11259,7 +11271,6 @@ var App = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm.
       return this.entityState
     },
     calcDistance: function (neighbor) {
-      console.log('exaQuark.', helpers.getNeighborsByMaxDistance(this.entityState, this.neighbors, 10000));
       return helpers.getDistanceBetweenEntities(this.entityState, neighbor)
     }
   }

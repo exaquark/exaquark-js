@@ -34,6 +34,10 @@ You can see a demo of the library in action in `demo`. See `demo/README.md` for 
 
 ## ChangeLog
 
+##### 1.0.8
+
+- Adding changes for customState
+
 ##### 1.0.7
 
 - Added `getDistanceBetweenEntities()` & `getNeighborsByMaxDistance()`

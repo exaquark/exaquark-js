@@ -14,6 +14,7 @@
           iid: {{n.iid}}
           <ul>
             <li>Distance: {{calcDistance(n)}}</li>
+            <li v-if="n.customState && n.customState.message">Custom State Message: {{n.customState.message}}</li>
           </ul>
         </li>
       </ul>
@@ -53,15 +54,16 @@ export default {
           rotation: [ 2, 5, 19 ] // {Array of doubles} optional: all in degrees. Default facing north
         },
         properties: {
-          avatarId: 'MOCK_AVATAR_ID', // {string} required: the avatar your user has selected
+          displayName: 'MY_NAME_IS', // {string} required: the avatar your user has selected
           sound: true, // {boolean} optional: defaults to true. false === mute
           mic: true, // {boolean} optional: defaults to true. false === muted microphone
           virtualPosition: false, // {boolean} optional: defaults to false. Is this person physically in the position that they are in the digital universe. (true === they are not physically present there)
-          entityType: 'HUMAN' // {string} optional: defaults to 'human'. Options: 'HUMAN' | 'BOT' | 'DRONE'
+          entityType: 'HUMAN' // {string} optional: defaults to 'HUMAN'. Options: 'HUMAN' | 'BOT' | 'DRONE'
         },
-        universeState: {
+        customState: {
           // developer defined state for their universe
           // you can use this to pass arbitrary data to other entities in your neighborhood
+          message: 'Hello world'
         }
       }
     }
@@ -72,6 +74,7 @@ export default {
       this.neighbors = exaQuark.neighbors('Array')
     })
     exaQuark.on('neighbor:updates', entityState => {
+      console.log('exaQuark.', exaQuarkHelpers.getNeighborsByMaxDistance(this.entityState, this.neighbors, 10000))
       this.neighbors = exaQuark.neighbors('Array')
     })
     exaQuark.on('neighbor:leave', entityState => {
@@ -87,7 +90,6 @@ export default {
       return this.entityState
     },
     calcDistance: function (neighbor) {
-      console.log('exaQuark.', exaQuarkHelpers.getNeighborsByMaxDistance(this.entityState, this.neighbors, 10000))
       return exaQuarkHelpers.getDistanceBetweenEntities(this.entityState, neighbor)
     }
   }
