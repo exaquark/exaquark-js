@@ -9,6 +9,9 @@ var global$1 = typeof global !== "undefined" ? global :
             typeof self !== "undefined" ? self :
             typeof window !== "undefined" ? window : {}
 
+// shim for using process in browser
+// based off https://github.com/defunctzombie/node-process/blob/master/browser.js
+
 function defaultSetTimout() {
     throw new Error('setTimeout has not been defined');
 }
@@ -230,6 +233,13 @@ var process = {
   config: config,
   uptime: uptime
 };
+
+/*!
+ * Vue.js v2.5.13
+ * (c) 2014-2017 Evan You
+ * Released under the MIT License.
+ */
+/*  */
 
 var emptyObject = Object.freeze({});
 
@@ -8144,6 +8154,11 @@ Vue$3.nextTick(function () {
   }
 }, 0);
 
+/**
+  * vue-router v3.0.1
+  * (c) 2017 Evan You
+  * @license MIT
+  */
 /*  */
 
 function assert (condition, message) {
@@ -10843,7 +10858,7 @@ _exports.getNeighborsByMaxDistance = function (entityState, arrayOfNeighbors, di
 };
 });
 
-var lib = createCommonjsModule(function (module, exports) {
+var exaquarkJs = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -10942,7 +10957,7 @@ var exaQuark = function () {
           _this.state = initialState;
 
           var encodedState = encodeURIComponent(JSON.stringify(initialState));
-          _this.conn = new WebSocket(_this.entryPoint + '?state=' + encodedState);
+          _this.conn = new WebSocket(_this.entryPoint + '?state=' + encodedState); // eslint-disable-line
           _this.conn.onopen = function (data) {
             return _this.onConnOpen(data);
           };
@@ -11200,7 +11215,7 @@ exports.default = exaQuark;
 module.exports = exports['default'];
 });
 
-var ExaQuarkJs = unwrapExports(lib);
+var ExaQuarkJs = unwrapExports(exaquarkJs);
 
 var exaquarkUrl = 'https://enter.exaquark.com';
 var exaQuark = new ExaQuarkJs(exaquarkUrl, apiKey, options);

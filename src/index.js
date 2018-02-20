@@ -27,6 +27,20 @@ const loadJSONP = (() => {
   }
 })()
 
+// var getRequest = function (url, callback) {
+//   let xhr = new XMLHttpRequest()
+//   xhr.open('GET', url)
+//   xhr.onload = function() {
+//     if (xhr.status === 200) {
+//       callback(null, xhr.responseText)
+//     }
+//     else {
+//       callback(xhr.status)
+//     }
+//   }
+//   xhr.send()
+// }
+
 /**
  * Represents an exaQuark instance
  * @constructor

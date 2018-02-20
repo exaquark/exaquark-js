@@ -23,8 +23,8 @@
 </template>
 
 <script>
-import ExaQuarkJs from './../../lib/index.js'
-import exaQuarkHelpers from './../../lib/helpers'
+import ExaQuarkJs from './../../index.js'
+import exaQuarkHelpers from './../../helpers'
 const exaquarkUrl = 'https://enter.exaquark.com'
 let exaQuark = new ExaQuarkJs(exaquarkUrl, apiKey, options)
 var apiKey = 'YOUR_API_KEY' // required
