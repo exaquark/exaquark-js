@@ -3,6 +3,7 @@
     <div class="">
       <h3>My details:</h3>
 
+      <p>Name: {{this.entityState.properties.displayName}}</p>
       <p>IID: {{this.iid}}</p>
       <p>Lat: {{this.entityState.geo.lat}}</p>
       <p>Lng: {{this.entityState.geo.lng}}</p>
@@ -11,6 +12,7 @@
       <h3>Open Multiple tabs to see neighbors</h3>
       <ul>
         <li v-for="n in neighbors" :key="n.iid">
+          {{n.properties.displayName}}<br>
           iid: {{n.iid}}
           <ul>
             <li>Distance: {{calcDistance(n)}}</li>

@@ -1,45 +1,31 @@
-import { log } from './utils/private'
+import { log, getRequest } from './utils/private'
 import { dictionaryToArray } from './helpers'
 
-const loadJSONP = (() => {
-  let unique = 0
-  return (url, callback, context) => {
-    // INIT
-    let name = '_jsonp_' + unique++
-    if (url.match(/\?/)) url += '&callback=' + name
-    else url += '?callback=' + name
-
-    // Create script
-    let script = document.createElement('script')
-    script.type = 'text/javascript'
-    script.src = url
-
-    // Setup handler
-    window[name] = data => {
-      callback.call((context || window), data)
-      document.getElementsByTagName('head')[0].removeChild(script)
-      script = null
-      delete window[name]
-    }
-
-    // Load JSON
-    document.getElementsByTagName('head')[0].appendChild(script)
-  }
-})()
-
-// var getRequest = function (url, callback) {
-//   let xhr = new XMLHttpRequest()
-//   xhr.open('GET', url)
-//   xhr.onload = function() {
-//     if (xhr.status === 200) {
-//       callback(null, xhr.responseText)
+// const loadJSONP = (() => {
+//   let unique = 0
+//   return (url, callback, context) => {
+//     // INIT
+//     let name = '_jsonp_' + unique++
+//     if (url.match(/\?/)) url += '&callback=' + name
+//     else url += '?callback=' + name
+//
+//     // Create script
+//     let script = document.createElement('script')
+//     script.type = 'text/javascript'
+//     script.src = url
+//
+//     // Setup handler
+//     window[name] = data => {
+//       callback.call((context || window), data)
+//       document.getElementsByTagName('head')[0].removeChild(script)
+//       script = null
+//       delete window[name]
 //     }
-//     else {
-//       callback(xhr.status)
-//     }
+//
+//     // Load JSON
+//     document.getElementsByTagName('head')[0].appendChild(script)
 //   }
-//   xhr.send()
-// }
+// })()
 
 /**
  * Represents an exaQuark instance
@@ -80,7 +66,9 @@ class exaQuark {
     if (this.conn) { return }
 
     return new Promise((resolve, reject) => {
-      loadJSONP(this.allocatorUrl, response => {
+      getRequest(this.allocatorUrl, (err, response) => {
+        console.log('err', err)
+        console.log('response', response)
         this.entryPoint = response.entryPoint
         this.iid = response.iid
 

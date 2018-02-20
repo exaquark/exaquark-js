@@ -34,6 +34,11 @@ You can see a demo of the library in action in `demo`. See `demo/README.md` for 
 
 ## ChangeLog
 
+##### 1.0.9
+
+- Changing JSONP to AJAX for allocator
+- Moving code from `lib` to root folder
+
 ##### 1.0.8
 
 - Adding changes for customState

@@ -9,9 +9,6 @@ var global$1 = typeof global !== "undefined" ? global :
             typeof self !== "undefined" ? self :
             typeof window !== "undefined" ? window : {}
 
-// shim for using process in browser
-// based off https://github.com/defunctzombie/node-process/blob/master/browser.js
-
 function defaultSetTimout() {
     throw new Error('setTimeout has not been defined');
 }
@@ -233,13 +230,6 @@ var process = {
   config: config,
   uptime: uptime
 };
-
-/*!
- * Vue.js v2.5.13
- * (c) 2014-2017 Evan You
- * Released under the MIT License.
- */
-/*  */
 
 var emptyObject = Object.freeze({});
 
@@ -8154,11 +8144,6 @@ Vue$3.nextTick(function () {
   }
 }, 0);
 
-/**
-  * vue-router v3.0.1
-  * (c) 2017 Evan You
-  * @license MIT
-  */
 /*  */
 
 function assert (condition, message) {
@@ -10793,6 +10778,19 @@ var _exports = module.exports = {};
 _exports.log = function (logger, msg, data) {
   logger(msg, data);
 };
+
+_exports.getRequest = function (url, callback) {
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', url);
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      callback(null, JSON.parse(xhr.responseText));
+    } else {
+      callback(xhr.status);
+    }
+  };
+  xhr.send();
+};
 });
 
 var distance = createCommonjsModule(function (module) {
@@ -10871,30 +10869,31 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var loadJSONP = function () {
-  var unique = 0;
-  return function (url, callback, context) {
-    // INIT
-    var name = '_jsonp_' + unique++;
-    if (url.match(/\?/)) { url += '&callback=' + name; }else { url += '?callback=' + name; }
-
-    // Create script
-    var script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = url;
-
-    // Setup handler
-    window[name] = function (data) {
-      callback.call(context || window, data);
-      document.getElementsByTagName('head')[0].removeChild(script);
-      script = null;
-      delete window[name];
-    };
-
-    // Load JSON
-    document.getElementsByTagName('head')[0].appendChild(script);
-  };
-}();
+// const loadJSONP = (() => {
+//   let unique = 0
+//   return (url, callback, context) => {
+//     // INIT
+//     let name = '_jsonp_' + unique++
+//     if (url.match(/\?/)) url += '&callback=' + name
+//     else url += '?callback=' + name
+//
+//     // Create script
+//     let script = document.createElement('script')
+//     script.type = 'text/javascript'
+//     script.src = url
+//
+//     // Setup handler
+//     window[name] = data => {
+//       callback.call((context || window), data)
+//       document.getElementsByTagName('head')[0].removeChild(script)
+//       script = null
+//       delete window[name]
+//     }
+//
+//     // Load JSON
+//     document.getElementsByTagName('head')[0].appendChild(script)
+//   }
+// })()
 
 /**
  * Represents an exaQuark instance
@@ -10903,7 +10902,6 @@ var loadJSONP = function () {
  * @param {string} apiKey - Your authentication key
  * @param {Object} options - @TODO
  */
-
 var exaQuark = function () {
   function exaQuark(allocatorUrl, apiKey) {
     var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
@@ -10948,7 +10946,9 @@ var exaQuark = function () {
       }
 
       return new Promise(function (resolve, reject) {
-        loadJSONP(_this.allocatorUrl, function (response) {
+        (0, _private.getRequest)(_this.allocatorUrl, function (err, response) {
+          console.log('err', err);
+          console.log('response', response);
           _this.entryPoint = response.entryPoint;
           _this.iid = response.iid;
 
@@ -11228,7 +11228,7 @@ var options = {
 };
 
 
-var App = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"app"},[_c('div',{},[_c('h3',[_vm._v("My details:")]),_vm._v(" "),_c('p',[_vm._v("IID: "+_vm._s(this.iid))]),_vm._v(" "),_c('p',[_vm._v("Lat: "+_vm._s(this.entityState.geo.lat))]),_vm._v(" "),_c('p',[_vm._v("Lng: "+_vm._s(this.entityState.geo.lng))])]),_vm._v(" "),_c('div',[_c('h3',[_vm._v("Open Multiple tabs to see neighbors")]),_vm._v(" "),_c('ul',_vm._l((_vm.neighbors),function(n){return _c('li',{key:n.iid},[_vm._v(" iid: "+_vm._s(n.iid)+" "),_c('ul',[_c('li',[_vm._v("Distance: "+_vm._s(_vm.calcDistance(n)))]),_vm._v(" "),(n.customState && n.customState.message)?_c('li',[_vm._v("Custom State Message: "+_vm._s(n.customState.message))]):_vm._e()])])}))])])},staticRenderFns: [],
+var App = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"app"},[_c('div',{},[_c('h3',[_vm._v("My details:")]),_vm._v(" "),_c('p',[_vm._v("Name: "+_vm._s(this.entityState.properties.displayName))]),_vm._v(" "),_c('p',[_vm._v("IID: "+_vm._s(this.iid))]),_vm._v(" "),_c('p',[_vm._v("Lat: "+_vm._s(this.entityState.geo.lat))]),_vm._v(" "),_c('p',[_vm._v("Lng: "+_vm._s(this.entityState.geo.lng))])]),_vm._v(" "),_c('div',[_c('h3',[_vm._v("Open Multiple tabs to see neighbors")]),_vm._v(" "),_c('ul',_vm._l((_vm.neighbors),function(n){return _c('li',{key:n.iid},[_vm._v(" "+_vm._s(n.properties.displayName)),_c('br'),_vm._v(" iid: "+_vm._s(n.iid)+" "),_c('ul',[_c('li',[_vm._v("Distance: "+_vm._s(_vm.calcDistance(n)))]),_vm._v(" "),(n.customState && n.customState.message)?_c('li',[_vm._v("Custom State Message: "+_vm._s(n.customState.message))]):_vm._e()])])}))])])},staticRenderFns: [],
   name: 'app',
   components: { },
   data: function () {
