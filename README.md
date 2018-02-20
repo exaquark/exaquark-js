@@ -34,6 +34,10 @@ You can see a demo of the library in action in `demo`. See `demo/README.md` for 
 
 ## ChangeLog
 
+##### 1.0.10
+
+- Changing native XMLHttpRequest to xhr
+
 ##### 1.0.9
 
 - Changing JSONP to AJAX for allocator
