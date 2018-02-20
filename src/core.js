@@ -1,5 +1,6 @@
-import { log, getRequest } from './utils/private'
+import { log } from './utils/private'
 import { dictionaryToArray } from './helpers'
+const axios = require('axios')
 
 // const loadJSONP = (() => {
 //   let unique = 0
@@ -66,26 +67,30 @@ class exaQuark {
     if (this.conn) { return }
 
     return new Promise((resolve, reject) => {
-      getRequest(this.allocatorUrl, (err, response) => {
-        console.log('err', err)
-        console.log('response', response)
-        this.entryPoint = response.entryPoint
-        this.iid = response.iid
+      var self = this
+      axios.get(this.allocatorUrl)
+      .then(function (res) {
+        let response = res.data
+        self.entryPoint = response.entryPoint
+        self.iid = response.iid
 
-        let initialState = this.deepClone(payload)
-        initialState.iid = this.iid
-        this.state = initialState
+        let initialState = self.deepClone(payload)
+        initialState.iid = self.iid
+        self.state = initialState
 
         let encodedState = encodeURIComponent(JSON.stringify(initialState))
-        this.conn = new WebSocket(`${this.entryPoint}?state=${encodedState}`) // eslint-disable-line
-        this.conn.onopen = data => this.onConnOpen(data)
-        this.conn.onerror = error => this.onConnError(error)
-        this.conn.onmessage = event => this.onConnMessage(event)
-        this.conn.onclose = event => this.onConnClose(event)
+        self.conn = new WebSocket(`${self.entryPoint}?state=${encodedState}`) // eslint-disable-line
+        self.conn.onopen = data => self.onConnOpen(data)
+        self.conn.onerror = error => self.onConnError(error)
+        self.conn.onmessage = event => self.onConnMessage(event)
+        self.conn.onclose = event => self.onConnClose(event)
 
         return resolve({
-          iid: this.iid
+          iid: self.iid
         })
+      })
+      .catch(function (error) {
+        reject(error)
       })
     })
   }

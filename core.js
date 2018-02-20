@@ -12,6 +12,8 @@ var _helpers = require('./helpers');
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var axios = require('axios');
+
 // const loadJSONP = (() => {
 //   let unique = 0
 //   return (url, callback, context) => {
@@ -45,6 +47,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * @param {string} apiKey - Your authentication key
  * @param {Object} options - @TODO
  */
+
 var exaQuark = function () {
   function exaQuark(allocatorUrl, apiKey) {
     var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
@@ -89,34 +92,36 @@ var exaQuark = function () {
       }
 
       return new Promise(function (resolve, reject) {
-        (0, _private.getRequest)(_this.allocatorUrl, function (err, response) {
-          console.log('err', err);
-          console.log('response', response);
-          _this.entryPoint = response.entryPoint;
-          _this.iid = response.iid;
+        var self = _this;
+        axios.get(_this.allocatorUrl).then(function (res) {
+          var response = res.data;
+          self.entryPoint = response.entryPoint;
+          self.iid = response.iid;
 
-          var initialState = _this.deepClone(payload);
-          initialState.iid = _this.iid;
-          _this.state = initialState;
+          var initialState = self.deepClone(payload);
+          initialState.iid = self.iid;
+          self.state = initialState;
 
           var encodedState = encodeURIComponent(JSON.stringify(initialState));
-          _this.conn = new WebSocket(_this.entryPoint + '?state=' + encodedState); // eslint-disable-line
-          _this.conn.onopen = function (data) {
-            return _this.onConnOpen(data);
+          self.conn = new WebSocket(self.entryPoint + '?state=' + encodedState); // eslint-disable-line
+          self.conn.onopen = function (data) {
+            return self.onConnOpen(data);
           };
-          _this.conn.onerror = function (error) {
-            return _this.onConnError(error);
+          self.conn.onerror = function (error) {
+            return self.onConnError(error);
           };
-          _this.conn.onmessage = function (event) {
-            return _this.onConnMessage(event);
+          self.conn.onmessage = function (event) {
+            return self.onConnMessage(event);
           };
-          _this.conn.onclose = function (event) {
-            return _this.onConnClose(event);
+          self.conn.onclose = function (event) {
+            return self.onConnClose(event);
           };
 
           return resolve({
-            iid: _this.iid
+            iid: self.iid
           });
+        }).catch(function (error) {
+          reject(error);
         });
       });
     }

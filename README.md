@@ -34,6 +34,10 @@ You can see a demo of the library in action in `demo`. See `demo/README.md` for 
 
 ## ChangeLog
 
+##### 1.0.14
+
+- Migrating to axios for better ReactNative support
+
 ##### 1.0.13
 
 - Updateing index.js to core.js for main functionality

@@ -3,7 +3,8 @@
     <div class="">
       <h3>My details:</h3>
 
-      <p>Name: {{this.entityState.properties.displayName}}</p>
+      <p>Name: <input type="text" name="" v-model="entityState.properties.displayName" /></p>
+      <p>Custom message: <input type="text" name="" v-model="entityState.customState.message" /></p>
       <p>IID: {{this.iid}}</p>
       <p>Lat: {{this.entityState.geo.lat}}</p>
       <p>Lng: {{this.entityState.geo.lng}}</p>
@@ -21,11 +22,15 @@
         </li>
       </ul>
     </div>
+
+    <div class="">
+
+    </div>
   </div>
 </template>
 
 <script>
-import ExaQuarkJs from './../../index.js'
+import ExaQuarkJs from './../../core'
 import exaQuarkHelpers from './../../helpers'
 const exaquarkUrl = 'https://enter.exaquark.com'
 let exaQuark = new ExaQuarkJs(exaquarkUrl, apiKey, options)
@@ -76,7 +81,7 @@ export default {
       this.neighbors = exaQuark.neighbors('Array')
     })
     exaQuark.on('neighbor:updates', entityState => {
-      console.log('exaQuark.', exaQuarkHelpers.getNeighborsByMaxDistance(this.entityState, this.neighbors, 10000))
+      // console.log('exaQuark.', exaQuarkHelpers.getNeighborsByMaxDistance(this.entityState, this.neighbors, 10000)) // show
       this.neighbors = exaQuark.neighbors('Array')
     })
     exaQuark.on('neighbor:leave', entityState => {
