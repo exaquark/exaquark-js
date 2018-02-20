@@ -34,6 +34,14 @@ You can see a demo of the library in action in `demo`. See `demo/README.md` for 
 
 ## ChangeLog
 
+##### 1.0.13
+
+- Updateing index.js to core.js for main functionality
+
+##### 1.0.11
+
+- Chaning package.json to include root files
+
 ##### 1.0.11
 
 - Setting entry point to root folder

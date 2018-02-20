@@ -1,10 +1,10 @@
 {
   "name": "exaquark-js",
-  "version": "1.0.11",
+  "version": "1.0.13",
   "description": "JS wrapper for exaquark.com",
   "main": "./",
   "scripts": {
-    "clean": "rimraf lib utils index.js helpers.js",
+    "clean": "rimraf utils core.js helpers.js",
     "test": "cross-env BABEL_ENV=commonjs mocha --compilers js:babel-register --recursive",
     "test:watch": "npm test -- --watch",
     "test:examples": "node examples/",
@@ -16,8 +16,9 @@
     "docs:api": "./node_modules/.bin/jsdoc2md --configure ./tooling/docs/jsdoc.json --files ./src/**/*.js > docs/api.md"
   },
   "files": [
-    "lib",
-    "src"
+    "core.js",
+    "helpers.js",
+    "utils"
   ],
   "repository": {
     "type": "git",
