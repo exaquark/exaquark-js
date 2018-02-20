@@ -34,6 +34,10 @@ You can see a demo of the library in action in `demo`. See `demo/README.md` for 
 
 ## ChangeLog
 
+##### 1.0.11
+
+- Setting entry point to root folder
+
 ##### 1.0.10
 
 - Changing native XMLHttpRequest to xhr
