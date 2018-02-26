@@ -34,6 +34,11 @@ You can see a demo of the library in action in `demo`. See `demo/README.md` for 
 
 ## ChangeLog
 
+##### 1.0.15
+
+- Switching to secure socket
+- Fixing removes function 
+
 ##### 1.0.14
 
 - Migrating to axios for better ReactNative support

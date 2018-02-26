@@ -45,7 +45,7 @@ class exaQuark {
       axios.get(this.allocatorUrl)
       .then(function (res) {
         let response = res.data
-        self.entryPoint = response.entryPoint
+        self.entryPoint = response.sentryPoint // use secure socket
         self.iid = response.iid
 
         let initialState = self.deepClone(payload)

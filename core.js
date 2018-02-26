@@ -69,7 +69,7 @@ var exaQuark = function () {
         var self = _this;
         axios.get(_this.allocatorUrl).then(function (res) {
           var response = res.data;
-          self.entryPoint = response.entryPoint;
+          self.entryPoint = response.sentryPoint; // use secure socket
           self.iid = response.iid;
 
           var initialState = self.deepClone(payload);
