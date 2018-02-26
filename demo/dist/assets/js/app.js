@@ -12406,8 +12406,135 @@ module.exports = exports['default'];
 
 var ExaQuarkJs = unwrapExports(core);
 
+var browserMedia_1 = createCommonjsModule(function (module, exports) {
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) { descriptor.writable = true; } Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) { defineProperties(Constructor.prototype, protoProps); } if (staticProps) { defineProperties(Constructor, staticProps); } return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var browserMedia = function () {
+  function browserMedia() {
+    _classCallCheck(this, browserMedia);
+
+    this.audioStream = {};
+    this.audioTracks = [];
+    this.videoStream = {};
+    this.videoTracks = [];
+  }
+
+  _createClass(browserMedia, [{
+    key: 'initAudio',
+    value: function initAudio() {
+      var _this = this;
+
+      var constraints = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { audio: true };
+
+      return new Promise(function (resolve, reject) {
+        navigator.mediaDevices.enumerateDevices().then(function (deviceInfos) {
+          for (var i = 0; i !== deviceInfos.length; ++i) {
+            var deviceInfo = deviceInfos[i];
+            if (deviceInfo.kind === 'audioinput') { _this.audioTracks.push(deviceInfos[i]); }
+          }
+          return navigator.mediaDevices.getUserMedia(constraints);
+        }).then(function (stream) {
+          console.log('stream', stream);
+          _this.audioStream = stream;
+          resolve(stream); // return the default stream
+        }).catch(function (err) {
+          return reject(err);
+        });
+      });
+    }
+  }, {
+    key: 'initVideo',
+    value: function initVideo() {
+      var _this2 = this;
+
+      var constraints = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { video: true };
+
+      return new Promise(function (resolve, reject) {
+        navigator.mediaDevices.enumerateDevices().then(function (deviceInfos) {
+          for (var i = 0; i !== deviceInfos.length; ++i) {
+            var deviceInfo = deviceInfos[i];
+            if (deviceInfo.kind === 'videoinput') { _this2.videoTracks.push(deviceInfos[i]); }
+          }
+          return navigator.mediaDevices.getUserMedia(constraints);
+        }).then(function (stream) {
+          _this2.videoStream = stream;
+          return resolve(stream); // return the default stream
+        }).catch(function (err) {
+          return reject(err);
+        });
+      });
+    }
+  }, {
+    key: 'getAudioTracks',
+    value: function getAudioTracks() {
+      return this.audioTracks;
+    }
+  }, {
+    key: 'getVideoTracks',
+    value: function getVideoTracks() {
+      return this.videoTracks;
+    }
+  }, {
+    key: 'stopAudio',
+    value: function stopAudio() {
+      this.videoStream.getAudioTracks()[0].stop();
+    }
+  }, {
+    key: 'stopVideo',
+    value: function stopVideo() {
+      this.videoStream.getVideoTracks()[0].stop();
+    }
+
+    // getAudioTracks () {
+    //   return new Promise((resolve, reject) => {
+    //     let tracks = []
+    //     navigator.mediaDevices.enumerateDevices()
+    //     .then(deviceInfos => {
+    //       for (var i = 0; i !== deviceInfos.length; ++i) {
+    //         var deviceInfo = deviceInfos[i]
+    //         if (deviceInfo.kind === 'audioinput') tracks.push(deviceInfos[i])
+    //       }
+    //       return resolve(tracks)
+    //     })
+    //     .catch(err => reject(err))
+    //   })
+    // }
+    //
+    // getVideoTracks () {
+    //   return new Promise((resolve, reject) => {
+    //     let tracks = []
+    //     navigator.mediaDevices.enumerateDevices()
+    //     .then(deviceInfos => {
+    //       for (var i = 0; i !== deviceInfos.length; ++i) {
+    //         var deviceInfo = deviceInfos[i]
+    //         if (deviceInfo.kind === 'videoinput') tracks.push(deviceInfos[i])
+    //       }
+    //       return resolve(tracks)
+    //     })
+    //     .catch(err => reject(err))
+    //   })
+    // }
+
+  }]);
+
+  return browserMedia;
+}();
+
+exports.default = browserMedia;
+module.exports = exports['default'];
+});
+
+var ExaQuarkMedia = unwrapExports(browserMedia_1);
+
 var exaquarkUrl = 'https://enter.exaquark.com';
 var exaQuark = new ExaQuarkJs(exaquarkUrl, apiKey, options);
+var exaQuarkMedia = new ExaQuarkMedia();
 var apiKey = 'YOUR_API_KEY'; // required
 var options = {
   entityId: 'ENTITY_ID', // required
@@ -12417,11 +12544,12 @@ var options = {
 };
 
 
-var App = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"app"},[_c('div',{},[_c('h3',[_vm._v("My details:")]),_vm._v(" "),_c('p',[_vm._v("Name: "),_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.entityState.properties.displayName),expression:"entityState.properties.displayName"}],attrs:{"type":"text","name":""},domProps:{"value":(_vm.entityState.properties.displayName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.$set(_vm.entityState.properties, "displayName", $event.target.value);}}})]),_vm._v(" "),_c('p',[_vm._v("Custom message: "),_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.entityState.customState.message),expression:"entityState.customState.message"}],attrs:{"type":"text","name":""},domProps:{"value":(_vm.entityState.customState.message)},on:{"input":function($event){if($event.target.composing){ return; }_vm.$set(_vm.entityState.customState, "message", $event.target.value);}}})]),_vm._v(" "),_c('p',[_vm._v("IID: "+_vm._s(this.iid))]),_vm._v(" "),_c('p',[_vm._v("Lat: "+_vm._s(this.entityState.geo.lat))]),_vm._v(" "),_c('p',[_vm._v("Lng: "+_vm._s(this.entityState.geo.lng))])]),_vm._v(" "),_c('div',[_c('h3',[_vm._v("Open Multiple tabs to see neighbors")]),_vm._v(" "),_c('ul',_vm._l((_vm.neighbors),function(n){return _c('li',{key:n.iid},[_vm._v(" "+_vm._s(n.properties.displayName)),_c('br'),_vm._v(" iid: "+_vm._s(n.iid)+" "),_c('ul',[_c('li',[_vm._v("Distance: "+_vm._s(_vm.calcDistance(n)))]),_vm._v(" "),(n.customState && n.customState.message)?_c('li',[_vm._v("Custom State Message: "+_vm._s(n.customState.message))]):_vm._e()])])}))]),_vm._v(" "),_c('div',{})])},staticRenderFns: [],
+var App = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"app"},[_c('div',{staticClass:"section container"},[_c('h3',[_vm._v("My details:")]),_vm._v(" "),_c('p',[_vm._v("Name: "),_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.entityState.properties.displayName),expression:"entityState.properties.displayName"}],attrs:{"type":"text","name":""},domProps:{"value":(_vm.entityState.properties.displayName)},on:{"input":function($event){if($event.target.composing){ return; }_vm.$set(_vm.entityState.properties, "displayName", $event.target.value);}}})]),_vm._v(" "),_c('p',[_vm._v("Custom message: "),_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.entityState.customState.message),expression:"entityState.customState.message"}],attrs:{"type":"text","name":""},domProps:{"value":(_vm.entityState.customState.message)},on:{"input":function($event){if($event.target.composing){ return; }_vm.$set(_vm.entityState.customState, "message", $event.target.value);}}})]),_vm._v(" "),_c('p',[_vm._v("IID: "+_vm._s(this.iid))]),_vm._v(" "),_c('p',[_vm._v("Lat: "+_vm._s(this.entityState.geo.lat))]),_vm._v(" "),_c('p',[_vm._v("Lng: "+_vm._s(this.entityState.geo.lng))]),_vm._v(" "),_c('p',[_c('button',{staticClass:"button",on:{"click":_vm.startVideo}},[_vm._v("Video")]),_vm._v(" "),_c('button',{staticClass:"button",on:{"click":_vm.startAudio}},[_vm._v("Audio")])]),_vm._v(" "),_c('div',{},[_c('video',{ref:"Video",attrs:{"src":"","autoplay":""}})])]),_vm._v(" "),_c('div',{staticClass:"section container"},[_c('h3',[_vm._v("Open Multiple tabs to see neighbors")]),_vm._v(" "),_c('ul',_vm._l((_vm.neighbors),function(n){return _c('li',{key:n.iid},[_vm._v(" "+_vm._s(n.properties.displayName)),_c('br'),_vm._v(" iid: "+_vm._s(n.iid)+" "),_c('ul',[_c('li',[_vm._v("Distance: "+_vm._s(_vm.calcDistance(n)))]),_vm._v(" "),(n.customState && n.customState.message)?_c('li',[_vm._v("Custom State Message: "+_vm._s(n.customState.message))]):_vm._e()])])}))]),_vm._v(" "),_c('div',{})])},staticRenderFns: [],
   name: 'app',
   components: { },
   data: function () {
     return {
+      video: false,
       iid: null,
       neighbors: [],
       entityState: {
@@ -12452,6 +12580,10 @@ var App = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm.
   created: function () {
     var this$1 = this;
 
+    // navigator.mediaDevices.enumerateDevices().then(deviceInfos => {
+    //   console.log(deviceInfos)
+    // })
+
     exaQuark.bind(this.getState);
     exaQuark.on('neighbor:enter', function (entityState) {
       this$1.neighbors = exaQuark.neighbors('Array');
@@ -12476,6 +12608,35 @@ var App = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm.
     },
     calcDistance: function (neighbor) {
       return helpers.getDistanceBetweenEntities(this.entityState, neighbor)
+    },
+    startVideo: function () {
+      var this$1 = this;
+
+      if (!this.video) {
+        exaQuarkMedia.initVideo()
+        .then(function (stream) {
+          var video = this$1.$refs.Video;
+          video.srcObject = stream;
+          video.onloadedmetadata = function(e) {
+            video.play();
+          };
+          this$1.video = true;
+        })
+        .catch(function (err) { return console.error(err); });
+      } else {
+        this.video = false;
+        exaQuarkMedia.stopVideo();
+      }
+    },
+    startAudio: function () {
+
+      exaQuarkMedia.initAudio()
+      .then(function (stream) {
+        console.log('stream', stream);
+        console.log('exaQuarkMedia.getAudioTracks()', exaQuarkMedia.getAudioTracks());
+      })
+      .catch(function (err) { return console.error(err); });
+
     }
   }
 }

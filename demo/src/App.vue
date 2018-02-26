@@ -1,6 +1,6 @@
 <template>
   <div class="app">
-    <div class="">
+    <div class="section container">
       <h3>My details:</h3>
 
       <p>Name: <input type="text" name="" v-model="entityState.properties.displayName" /></p>
@@ -8,8 +8,20 @@
       <p>IID: {{this.iid}}</p>
       <p>Lat: {{this.entityState.geo.lat}}</p>
       <p>Lng: {{this.entityState.geo.lng}}</p>
+      <p>
+        <button class="button" @click="startVideo">Video</button>
+        <button class="button" @click="startAudio">Audio</button>
+      </p>
+
+      <div class="">
+
+        <video src="" autoplay ref="Video">
+
+        </video>
+
+      </div>
     </div>
-    <div>
+    <div class="section container">
       <h3>Open Multiple tabs to see neighbors</h3>
       <ul>
         <li v-for="n in neighbors" :key="n.iid">
@@ -31,9 +43,11 @@
 
 <script>
 import ExaQuarkJs from './../../core'
+import ExaQuarkMedia from './../../browserMedia'
 import exaQuarkHelpers from './../../helpers'
 const exaquarkUrl = 'https://enter.exaquark.com'
 let exaQuark = new ExaQuarkJs(exaquarkUrl, apiKey, options)
+let exaQuarkMedia = new ExaQuarkMedia()
 var apiKey = 'YOUR_API_KEY' // required
 let options = {
   entityId: 'ENTITY_ID', // required
@@ -48,6 +62,7 @@ export default {
   components: { },
   data: () => {
     return {
+      video: false,
       iid: null,
       neighbors: [],
       entityState: {
@@ -76,6 +91,10 @@ export default {
     }
   },
   created: function () {
+    // navigator.mediaDevices.enumerateDevices().then(deviceInfos => {
+    //   console.log(deviceInfos)
+    // })
+
     exaQuark.bind(this.getState)
     exaQuark.on('neighbor:enter', entityState => {
       this.neighbors = exaQuark.neighbors('Array')
@@ -98,6 +117,33 @@ export default {
     },
     calcDistance: function (neighbor) {
       return exaQuarkHelpers.getDistanceBetweenEntities(this.entityState, neighbor)
+    },
+    startVideo: function () {
+      if (!this.video) {
+        exaQuarkMedia.initVideo()
+        .then(stream => {
+          let video = this.$refs.Video
+          video.srcObject = stream
+          video.onloadedmetadata = function(e) {
+            video.play()
+          }
+          this.video = true
+        })
+        .catch(err => console.error(err))
+      } else {
+        this.video = false
+        exaQuarkMedia.stopVideo()
+      }
+    },
+    startAudio: function () {
+
+      exaQuarkMedia.initAudio()
+      .then(stream => {
+        console.log('stream', stream)
+        console.log('exaQuarkMedia.getAudioTracks()', exaQuarkMedia.getAudioTracks())
+      })
+      .catch(err => console.error(err))
+
     }
   }
 }
