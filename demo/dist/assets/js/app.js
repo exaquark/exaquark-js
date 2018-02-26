@@ -10771,6 +10771,78 @@ function createCommonjsModule(fn, module) {
 	return module = { exports: {} }, fn(module, module.exports), module.exports;
 }
 
+var _private = createCommonjsModule(function (module) {
+var _exports = module.exports = {};
+
+// Logs the message. Override `this.logger` for specialized logging. noops by default
+_exports.log = function (logger, msg, data) {
+  logger(msg, data);
+};
+});
+
+var distance = createCommonjsModule(function (module) {
+var _exports = module.exports = {};
+
+// Calculates the distance between a set of Lat/Lngs
+_exports.distanceOnSphere = function (lat1, lon1, lat2, lon2) {
+  var radius = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 6371;
+
+  var p = 0.017453292519943295; // Math.PI / 180
+  var c = Math.cos;
+  var diameter = 2 * radius;
+  var a = 0.5 - c((lat2 - lat1) * p) / 2 + c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+
+  return diameter * Math.asin(Math.sqrt(a));
+};
+});
+
+var helpers = createCommonjsModule(function (module) {
+var _exports = module.exports = {};
+
+/**
+* Converts a dictionary to an array
+* @param {Object} dict
+*/
+_exports.dictionaryToArray = function (dict) {
+  return Object.keys(dict).map(function (key) {
+    return dict[key];
+  });
+};
+
+// Converts a dictionary to an array
+/**
+* Converts a array to an dictionary
+* @param {Array} arr
+*/
+_exports.arrayToDictionary = function (arr) {
+  return arr.reduce(function (map, obj) {
+    map[obj.iid] = obj;
+    return map;
+  }, {});
+};
+
+/**
+* Returns the distance between two entities
+* @param {string} [options.units] - the unit of measurement. Defaults to meters
+*/
+_exports.getDistanceBetweenEntities = function (entityOne, entityTwo, options) {
+  return (0, distance.distanceOnSphere)(entityOne.geo.lat, entityOne.geo.lng, entityTwo.geo.lat, entityTwo.geo.lng);
+};
+
+/**
+* Gets a list of neighbors within a specified distance
+* @param {Array} a list of neighbors that you want to check
+* @param {number} distance
+* @param {string} [options.units] - the unit of measurement. Defaults to meters
+* @returns Array of neighbors
+*/
+_exports.getNeighborsByMaxDistance = function (entityState, arrayOfNeighbors, distance$$1) {
+  return arrayOfNeighbors.filter(function (x) {
+    return distance$$1 >= (0, distance.distanceOnSphere)(entityState.geo.lat, entityState.geo.lng, x.geo.lat, x.geo.lng);
+  });
+};
+});
+
 var bind$1 = function bind(fn, thisArg) {
   return function wrap() {
     var arguments$1 = arguments;
@@ -11994,101 +12066,6 @@ axios_1.default = default_1;
 
 var axios$1 = axios_1;
 
-var _private = createCommonjsModule(function (module) {
-var _exports = module.exports = {};
-
-// Logs the message. Override `this.logger` for specialized logging. noops by default
-_exports.log = function (logger, msg, data) {
-  logger(msg, data);
-};
-
-_exports.getRequest = function (url, callback) {
-  // xhr.get(url, (err, resp) => {
-  //   callback(err, JSON.parse(resp.body))
-  // })
-
-  // nets({ url: url }, function(err, resp) {
-  //   console.log('resp', resp)
-  //   callback(err, JSON.parse(resp.body))
-  // })
-
-  // let api = new Frisbee({
-  //   baseURI: url,
-  //   headers: {
-  //     'Accept': 'application/json',
-  //     'Content-Type': 'application/json'
-  //   }
-  // }).get().then(res => {
-  //   return callback(res.err, res.body)
-  // })\
-
-
-};
-});
-
-var distance = createCommonjsModule(function (module) {
-var _exports = module.exports = {};
-
-// Calculates the distance between a set of Lat/Lngs
-_exports.distanceOnSphere = function (lat1, lon1, lat2, lon2) {
-  var radius = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 6371;
-
-  var p = 0.017453292519943295; // Math.PI / 180
-  var c = Math.cos;
-  var diameter = 2 * radius;
-  var a = 0.5 - c((lat2 - lat1) * p) / 2 + c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
-
-  return diameter * Math.asin(Math.sqrt(a));
-};
-});
-
-var helpers = createCommonjsModule(function (module) {
-var _exports = module.exports = {};
-
-/**
-* Converts a dictionary to an array
-* @param {Object} dict
-*/
-_exports.dictionaryToArray = function (dict) {
-  return Object.keys(dict).map(function (key) {
-    return dict[key];
-  });
-};
-
-// Converts a dictionary to an array
-/**
-* Converts a array to an dictionary
-* @param {Array} arr
-*/
-_exports.arrayToDictionary = function (arr) {
-  return arr.reduce(function (map, obj) {
-    map[obj.iid] = obj;
-    return map;
-  }, {});
-};
-
-/**
-* Returns the distance between two entities
-* @param {string} [options.units] - the unit of measurement. Defaults to meters
-*/
-_exports.getDistanceBetweenEntities = function (entityOne, entityTwo, options) {
-  return (0, distance.distanceOnSphere)(entityOne.geo.lat, entityOne.geo.lng, entityTwo.geo.lat, entityTwo.geo.lng);
-};
-
-/**
-* Gets a list of neighbors within a specified distance
-* @param {Array} a list of neighbors that you want to check
-* @param {number} distance
-* @param {string} [options.units] - the unit of measurement. Defaults to meters
-* @returns Array of neighbors
-*/
-_exports.getNeighborsByMaxDistance = function (entityState, arrayOfNeighbors, distance$$1) {
-  return arrayOfNeighbors.filter(function (x) {
-    return distance$$1 >= (0, distance.distanceOnSphere)(entityState.geo.lat, entityState.geo.lng, x.geo.lat, x.geo.lng);
-  });
-};
-});
-
 var core = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -12103,32 +12080,6 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 
-
-// const loadJSONP = (() => {
-//   let unique = 0
-//   return (url, callback, context) => {
-//     // INIT
-//     let name = '_jsonp_' + unique++
-//     if (url.match(/\?/)) url += '&callback=' + name
-//     else url += '?callback=' + name
-//
-//     // Create script
-//     let script = document.createElement('script')
-//     script.type = 'text/javascript'
-//     script.src = url
-//
-//     // Setup handler
-//     window[name] = data => {
-//       callback.call((context || window), data)
-//       document.getElementsByTagName('head')[0].removeChild(script)
-//       script = null
-//       delete window[name]
-//     }
-//
-//     // Load JSON
-//     document.getElementsByTagName('head')[0].appendChild(script)
-//   }
-// })()
 
 /**
  * Represents an exaQuark instance
@@ -12298,7 +12249,7 @@ var exaQuark = function () {
           break;
         case 'removes':
           // leaving neighborhood
-          if (data.neighbors) { this.onRemovesMessage(data.neighbors); }
+          if (data.entities) { this.onRemovesMessage(data.entities); }
           break;
       }
     }
@@ -12362,20 +12313,20 @@ var exaQuark = function () {
   }, {
     key: 'addNeighbor',
     value: function addNeighbor(n) {
-      this.neighborHash[n.iid] = n;
       this.trigger('neighbor:enter', n);
+      this.neighborHash[n.iid] = n;
     }
   }, {
     key: 'updateNeighbor',
     value: function updateNeighbor(n) {
-      this.neighborHash[n.iid] = n;
       this.trigger('neighbor:updates', n);
+      this.neighborHash[n.iid] = n;
     }
   }, {
     key: 'removeNeighbor',
-    value: function removeNeighbor(n) {
-      delete this.neighborHash[n.iid];
-      this.trigger('neighbor:leave', n);
+    value: function removeNeighbor(iid) {
+      this.trigger('neighbor:leave', iid);
+      delete this.neighborHash[iid];
     }
   }, {
     key: 'push',

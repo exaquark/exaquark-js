@@ -2,32 +2,6 @@ import { log } from './utils/private'
 import { dictionaryToArray } from './helpers'
 const axios = require('axios')
 
-// const loadJSONP = (() => {
-//   let unique = 0
-//   return (url, callback, context) => {
-//     // INIT
-//     let name = '_jsonp_' + unique++
-//     if (url.match(/\?/)) url += '&callback=' + name
-//     else url += '?callback=' + name
-//
-//     // Create script
-//     let script = document.createElement('script')
-//     script.type = 'text/javascript'
-//     script.src = url
-//
-//     // Setup handler
-//     window[name] = data => {
-//       callback.call((context || window), data)
-//       document.getElementsByTagName('head')[0].removeChild(script)
-//       script = null
-//       delete window[name]
-//     }
-//
-//     // Load JSON
-//     document.getElementsByTagName('head')[0].appendChild(script)
-//   }
-// })()
-
 /**
  * Represents an exaQuark instance
  * @constructor
@@ -151,7 +125,7 @@ class exaQuark {
         if (data.neighbors) this.onUpdatesMessage(data.neighbors)
         break
       case 'removes': // leaving neighborhood
-        if (data.neighbors) this.onRemovesMessage(data.neighbors)
+        if (data.entities) this.onRemovesMessage(data.entities)
         break
     }
   }
@@ -190,16 +164,16 @@ class exaQuark {
     return entity.iid === this.iid
   }
   addNeighbor (n) {
-    this.neighborHash[n.iid] = n
     this.trigger('neighbor:enter', n)
+    this.neighborHash[n.iid] = n
   }
   updateNeighbor (n) {
-    this.neighborHash[n.iid] = n
     this.trigger('neighbor:updates', n)
+    this.neighborHash[n.iid] = n
   }
-  removeNeighbor (n) {
-    delete this.neighborHash[n.iid]
-    this.trigger('neighbor:leave', n)
+  removeNeighbor (iid) {
+    this.trigger('neighbor:leave', iid)
+    delete this.neighborHash[iid]
   }
   push (eventName, payload) {
     if (!this.canPush()) { return }

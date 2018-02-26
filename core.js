@@ -14,32 +14,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var axios = require('axios');
 
-// const loadJSONP = (() => {
-//   let unique = 0
-//   return (url, callback, context) => {
-//     // INIT
-//     let name = '_jsonp_' + unique++
-//     if (url.match(/\?/)) url += '&callback=' + name
-//     else url += '?callback=' + name
-//
-//     // Create script
-//     let script = document.createElement('script')
-//     script.type = 'text/javascript'
-//     script.src = url
-//
-//     // Setup handler
-//     window[name] = data => {
-//       callback.call((context || window), data)
-//       document.getElementsByTagName('head')[0].removeChild(script)
-//       script = null
-//       delete window[name]
-//     }
-//
-//     // Load JSON
-//     document.getElementsByTagName('head')[0].appendChild(script)
-//   }
-// })()
-
 /**
  * Represents an exaQuark instance
  * @constructor
@@ -208,7 +182,7 @@ var exaQuark = function () {
           break;
         case 'removes':
           // leaving neighborhood
-          if (data.neighbors) this.onRemovesMessage(data.neighbors);
+          if (data.entities) this.onRemovesMessage(data.entities);
           break;
       }
     }
@@ -270,20 +244,20 @@ var exaQuark = function () {
   }, {
     key: 'addNeighbor',
     value: function addNeighbor(n) {
-      this.neighborHash[n.iid] = n;
       this.trigger('neighbor:enter', n);
+      this.neighborHash[n.iid] = n;
     }
   }, {
     key: 'updateNeighbor',
     value: function updateNeighbor(n) {
-      this.neighborHash[n.iid] = n;
       this.trigger('neighbor:updates', n);
+      this.neighborHash[n.iid] = n;
     }
   }, {
     key: 'removeNeighbor',
-    value: function removeNeighbor(n) {
-      delete this.neighborHash[n.iid];
-      this.trigger('neighbor:leave', n);
+    value: function removeNeighbor(iid) {
+      this.trigger('neighbor:leave', iid);
+      delete this.neighborHash[iid];
     }
   }, {
     key: 'push',
