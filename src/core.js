@@ -14,7 +14,7 @@ class exaQuark {
     this.allocatorUrl = `${allocatorUrl}`
     this.apiKey = `${apiKey}`
     this.bindings = []
-    this.clientStateCallback = function () {} // noop
+    this.clientStateCallback = function () { return {} } // noop
     this.clientStateInterval = null
     this.conn = null // this socket connection to exaQuark
     this.entityId = options.entityId
