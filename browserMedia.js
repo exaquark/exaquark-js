@@ -83,37 +83,6 @@ var browserMedia = function () {
     value: function stopVideo() {
       this.videoStream.getVideoTracks()[0].stop();
     }
-
-    // getAudioTracks () {
-    //   return new Promise((resolve, reject) => {
-    //     let tracks = []
-    //     navigator.mediaDevices.enumerateDevices()
-    //     .then(deviceInfos => {
-    //       for (var i = 0; i !== deviceInfos.length; ++i) {
-    //         var deviceInfo = deviceInfos[i]
-    //         if (deviceInfo.kind === 'audioinput') tracks.push(deviceInfos[i])
-    //       }
-    //       return resolve(tracks)
-    //     })
-    //     .catch(err => reject(err))
-    //   })
-    // }
-    //
-    // getVideoTracks () {
-    //   return new Promise((resolve, reject) => {
-    //     let tracks = []
-    //     navigator.mediaDevices.enumerateDevices()
-    //     .then(deviceInfos => {
-    //       for (var i = 0; i !== deviceInfos.length; ++i) {
-    //         var deviceInfo = deviceInfos[i]
-    //         if (deviceInfo.kind === 'videoinput') tracks.push(deviceInfos[i])
-    //       }
-    //       return resolve(tracks)
-    //     })
-    //     .catch(err => reject(err))
-    //   })
-    // }
-
   }]);
 
   return browserMedia;

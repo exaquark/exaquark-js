@@ -106,10 +106,17 @@ export default {
     exaQuark.on('neighbor:leave', entityState => {
       this.neighbors = exaQuark.neighbors('Array')
     })
+    exaQuark.on('signal', payload => {
+      console.log('received signal', payload)
+    })
     exaQuark.connect(this.entityState).then(({ iid }) => {
       this.iid = iid
       exaQuark.push('ask:neighbors')
     }).catch('err', err => { console.error(err) })
+
+    setInterval(() => {
+      this.sendBroadcast('ping from neighbor. hello?')
+    }, 3000)
   },
   methods: {
     getState: function () {
@@ -117,6 +124,16 @@ export default {
     },
     calcDistance: function (neighbor) {
       return exaQuarkHelpers.getDistanceBetweenEntities(this.entityState, neighbor)
+    },
+    sendBroadcast: function (data) {
+      console.log('data', data)
+      exaQuark.push('signal:broadcast', {
+        universe: 'UNIVERSE_ID',
+        reach: 5,
+        signal: {
+          data: data
+        }
+      })
     },
     startVideo: function () {
       if (!this.video) {

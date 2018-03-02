@@ -18,6 +18,7 @@ class exaQuark {
     this.clientStateInterval = null
     this.conn = null // this socket connection to exaQuark
     this.entityId = options.entityId
+    this.universe = options.universe
     this.entryPoint = null
     this.heartbeat = !(options.heartbeat) ? 2000 : options.heartbeat // frequecy that the clientStateCallback will send updates to exaQuark
     this.iid = null
@@ -181,6 +182,12 @@ class exaQuark {
       case 'update:state':
         this.sendState(payload)
         break
+      case 'signal:private':
+        this.sendPrivateSignal(payload)
+        break
+      case 'signal:braodcast':
+        this.sendBroadcastSignal(payload)
+        break
       case 'ask:neighbors':
         this.askForNeighbors()
         break
@@ -212,6 +219,29 @@ class exaQuark {
     }
     payload.state.iid = this.iid
     this.conn.send(JSON.stringify(payload))
+  }
+  sendBroadcastSignal (payload) {
+    // log(this.logger, 'sending update', state)
+    let signalPayload = {
+      method: 'signal:broadcast',
+      iid: this.iid,
+      universe: this.universe,
+      entityId: this.entityId,
+      reach: payload.reach,
+      signal: payload.signal
+    }
+    this.conn.send(JSON.stringify(signalPayload))
+  }
+  sendPrivateSignal (payload) {
+    // log(this.logger, 'sending update', state)
+    let signalPayload = {
+      method: 'signal:private',
+      iid: this.iid,
+      universe: this.universe,
+      entities: payload.entities,
+      signal: payload.signal
+    }
+    this.conn.send(JSON.stringify(signalPayload))
   }
   askForNeighbors () {
     if (!this.canPush()) { return }

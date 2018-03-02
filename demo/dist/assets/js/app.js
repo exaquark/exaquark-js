@@ -12098,10 +12098,13 @@ var exaQuark = function () {
     this.allocatorUrl = '' + allocatorUrl;
     this.apiKey = '' + apiKey;
     this.bindings = [];
-    this.clientStateCallback = function () {}; // noop
+    this.clientStateCallback = function () {
+      return {};
+    }; // noop
     this.clientStateInterval = null;
     this.conn = null; // this socket connection to exaQuark
     this.entityId = options.entityId;
+    this.universe = options.universe;
     this.entryPoint = null;
     this.heartbeat = !options.heartbeat ? 2000 : options.heartbeat; // frequecy that the clientStateCallback will send updates to exaQuark
     this.iid = null;
@@ -12338,6 +12341,12 @@ var exaQuark = function () {
         case 'update:state':
           this.sendState(payload);
           break;
+        case 'signal:private':
+          this.sendPrivateSignal(payload);
+          break;
+        case 'signal:braodcast':
+          this.sendBroadcastSignal(payload);
+          break;
         case 'ask:neighbors':
           this.askForNeighbors();
           break;
@@ -12381,6 +12390,33 @@ var exaQuark = function () {
       };
       payload.state.iid = this.iid;
       this.conn.send(JSON.stringify(payload));
+    }
+  }, {
+    key: 'sendBroadcastSignal',
+    value: function sendBroadcastSignal(payload) {
+      // log(this.logger, 'sending update', state)
+      var signalPayload = {
+        method: 'signal:broadcast',
+        iid: this.iid,
+        universe: this.universe,
+        entityId: this.entityId,
+        reach: payload.reach,
+        signal: payload.signal
+      };
+      this.conn.send(JSON.stringify(signalPayload));
+    }
+  }, {
+    key: 'sendPrivateSignal',
+    value: function sendPrivateSignal(payload) {
+      // log(this.logger, 'sending update', state)
+      var signalPayload = {
+        method: 'signal:private',
+        iid: this.iid,
+        universe: this.universe,
+        entities: payload.entities,
+        signal: payload.signal
+      };
+      this.conn.send(JSON.stringify(signalPayload));
     }
   }, {
     key: 'askForNeighbors',
@@ -12490,37 +12526,6 @@ var browserMedia = function () {
     value: function stopVideo() {
       this.videoStream.getVideoTracks()[0].stop();
     }
-
-    // getAudioTracks () {
-    //   return new Promise((resolve, reject) => {
-    //     let tracks = []
-    //     navigator.mediaDevices.enumerateDevices()
-    //     .then(deviceInfos => {
-    //       for (var i = 0; i !== deviceInfos.length; ++i) {
-    //         var deviceInfo = deviceInfos[i]
-    //         if (deviceInfo.kind === 'audioinput') tracks.push(deviceInfos[i])
-    //       }
-    //       return resolve(tracks)
-    //     })
-    //     .catch(err => reject(err))
-    //   })
-    // }
-    //
-    // getVideoTracks () {
-    //   return new Promise((resolve, reject) => {
-    //     let tracks = []
-    //     navigator.mediaDevices.enumerateDevices()
-    //     .then(deviceInfos => {
-    //       for (var i = 0; i !== deviceInfos.length; ++i) {
-    //         var deviceInfo = deviceInfos[i]
-    //         if (deviceInfo.kind === 'videoinput') tracks.push(deviceInfos[i])
-    //       }
-    //       return resolve(tracks)
-    //     })
-    //     .catch(err => reject(err))
-    //   })
-    // }
-
   }]);
 
   return browserMedia;
@@ -12595,12 +12600,19 @@ var App = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm.
     exaQuark.on('neighbor:leave', function (entityState) {
       this$1.neighbors = exaQuark.neighbors('Array');
     });
+    exaQuark.on('signal', function (payload) {
+      console.log('received signal', payload);
+    });
     exaQuark.connect(this.entityState).then(function (ref) {
       var iid = ref.iid;
 
       this$1.iid = iid;
       exaQuark.push('ask:neighbors');
     }).catch('err', function (err) { console.error(err); });
+
+    setInterval(function () {
+      this$1.sendBroadcast('ping from neighbor. hello?');
+    }, 3000);
   },
   methods: {
     getState: function () {
@@ -12608,6 +12620,16 @@ var App = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm.
     },
     calcDistance: function (neighbor) {
       return helpers.getDistanceBetweenEntities(this.entityState, neighbor)
+    },
+    sendBroadcast: function (data) {
+      console.log('data', data);
+      exaQuark.push('signal:broadcast', {
+        universe: 'UNIVERSE_ID',
+        reach: 5,
+        signal: {
+          data: data
+        }
+      });
     },
     startVideo: function () {
       var this$1 = this;

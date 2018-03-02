@@ -31,10 +31,13 @@ var exaQuark = function () {
     this.allocatorUrl = '' + allocatorUrl;
     this.apiKey = '' + apiKey;
     this.bindings = [];
-    this.clientStateCallback = function () {}; // noop
+    this.clientStateCallback = function () {
+      return {};
+    }; // noop
     this.clientStateInterval = null;
     this.conn = null; // this socket connection to exaQuark
     this.entityId = options.entityId;
+    this.universe = options.universe;
     this.entryPoint = null;
     this.heartbeat = !options.heartbeat ? 2000 : options.heartbeat; // frequecy that the clientStateCallback will send updates to exaQuark
     this.iid = null;
@@ -269,6 +272,12 @@ var exaQuark = function () {
         case 'update:state':
           this.sendState(payload);
           break;
+        case 'signal:private':
+          this.sendPrivateSignal(payload);
+          break;
+        case 'signal:braodcast':
+          this.sendBroadcastSignal(payload);
+          break;
         case 'ask:neighbors':
           this.askForNeighbors();
           break;
@@ -312,6 +321,33 @@ var exaQuark = function () {
       };
       payload.state.iid = this.iid;
       this.conn.send(JSON.stringify(payload));
+    }
+  }, {
+    key: 'sendBroadcastSignal',
+    value: function sendBroadcastSignal(payload) {
+      // log(this.logger, 'sending update', state)
+      var signalPayload = {
+        method: 'signal:broadcast',
+        iid: this.iid,
+        universe: this.universe,
+        entityId: this.entityId,
+        reach: payload.reach,
+        signal: payload.signal
+      };
+      this.conn.send(JSON.stringify(signalPayload));
+    }
+  }, {
+    key: 'sendPrivateSignal',
+    value: function sendPrivateSignal(payload) {
+      // log(this.logger, 'sending update', state)
+      var signalPayload = {
+        method: 'signal:private',
+        iid: this.iid,
+        universe: this.universe,
+        entities: payload.entities,
+        signal: payload.signal
+      };
+      this.conn.send(JSON.stringify(signalPayload));
     }
   }, {
     key: 'askForNeighbors',
