@@ -34,10 +34,14 @@ You can see a demo of the library in action in `demo`. See `demo/README.md` for 
 
 ## ChangeLog
 
+##### 1.0.16
+
+- adding basic outline for media on browsers
+
 ##### 1.0.15
 
 - Switching to secure socket
-- Fixing removes function 
+- Fixing removes function
 
 ##### 1.0.14
 

@@ -9,6 +9,9 @@ var global$1 = typeof global !== "undefined" ? global :
             typeof self !== "undefined" ? self :
             typeof window !== "undefined" ? window : {}
 
+// shim for using process in browser
+// based off https://github.com/defunctzombie/node-process/blob/master/browser.js
+
 function defaultSetTimout() {
     throw new Error('setTimeout has not been defined');
 }
@@ -230,6 +233,13 @@ var process = {
   config: config,
   uptime: uptime
 };
+
+/*!
+ * Vue.js v2.5.13
+ * (c) 2014-2017 Evan You
+ * Released under the MIT License.
+ */
+/*  */
 
 var emptyObject = Object.freeze({});
 
@@ -8144,6 +8154,11 @@ Vue$3.nextTick(function () {
   }
 }, 0);
 
+/**
+  * vue-router v3.0.1
+  * (c) 2017 Evan You
+  * @license MIT
+  */
 /*  */
 
 function assert (condition, message) {
@@ -10877,6 +10892,10 @@ function isSlowBuffer (obj) {
   return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
 }
 
+/*global toString:true*/
+
+// utils is a library of generic helper functions non-specific to axios
+
 var toString$1 = Object.prototype.toString;
 
 /**
@@ -11183,6 +11202,16 @@ var normalizeHeaderName = function normalizeHeaderName(headers, normalizedName) 
   });
 };
 
+/**
+ * Update an Error with the specified config, error code, and response.
+ *
+ * @param {Error} error The error to update.
+ * @param {Object} config The config.
+ * @param {string} [code] The error code (for example, 'ECONNABORTED').
+ * @param {Object} [request] The request.
+ * @param {Object} [response] The response.
+ * @returns {Error} The error.
+ */
 var enhanceError = function enhanceError(error, config, code, request, response) {
   error.config = config;
   if (code) {
@@ -11193,11 +11222,28 @@ var enhanceError = function enhanceError(error, config, code, request, response)
   return error;
 };
 
+/**
+ * Create an Error with the specified message, config, error code, request and response.
+ *
+ * @param {string} message The error message.
+ * @param {Object} config The config.
+ * @param {string} [code] The error code (for example, 'ECONNABORTED').
+ * @param {Object} [request] The request.
+ * @param {Object} [response] The response.
+ * @returns {Error} The created error.
+ */
 var createError = function createError(message, config, code, request, response) {
   var error = new Error(message);
   return enhanceError(error, config, code, request, response);
 };
 
+/**
+ * Resolve or reject a Promise based on response status.
+ *
+ * @param {Function} resolve A function that resolves the promise.
+ * @param {Function} reject A function that rejects the promise.
+ * @param {object} response The response.
+ */
 var settle = function settle(resolve, reject, response) {
   var validateStatus = response.config.validateStatus;
   // Note: status is not exposed by XDomainRequest
@@ -11277,6 +11323,8 @@ var buildURL = function buildURL(url, params, paramsSerializer) {
   return url;
 };
 
+// Headers whose duplicates are ignored by node
+// c.f. https://nodejs.org/api/http.html#http_message_headers
 var ignoreDuplicateOf = [
   'age', 'authorization', 'content-length', 'content-type', 'etag',
   'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
@@ -11389,6 +11437,8 @@ var isURLSameOrigin = (
     };
   })()
 );
+
+// btoa polyfill for IE<10 courtesy https://github.com/davidchambers/Base64.js
 
 var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 
@@ -11787,6 +11837,14 @@ InterceptorManager.prototype.forEach = function forEach(fn) {
 
 var InterceptorManager_1 = InterceptorManager;
 
+/**
+ * Transform the data for a request or a response
+ *
+ * @param {Object|String} data The data to be transformed
+ * @param {Array} headers The headers for the request or response
+ * @param {Array|Function} fns A single function or Array of functions
+ * @returns {*} The resulting transformed data
+ */
 var transformData = function transformData(data, headers, fns) {
   /*eslint no-param-reassign:0*/
   utils.forEach(fns, function transform(fn) {
@@ -11800,6 +11858,12 @@ var isCancel = function isCancel(value) {
   return !!(value && value.__CANCEL__);
 };
 
+/**
+ * Determines whether the specified URL is absolute
+ *
+ * @param {string} url The URL to test
+ * @returns {boolean} True if the specified URL is absolute, otherwise false
+ */
 var isAbsoluteURL = function isAbsoluteURL(url) {
   // A URL is considered absolute if it begins with "<scheme>://" or "//" (protocol-relative URL).
   // RFC 3986 defines scheme name as a sequence of characters beginning with a letter and followed
@@ -11807,12 +11871,22 @@ var isAbsoluteURL = function isAbsoluteURL(url) {
   return /^([a-z][a-z\d\+\-\.]*:)?\/\//i.test(url);
 };
 
+/**
+ * Creates a new URL by combining the specified URLs
+ *
+ * @param {string} baseURL The base URL
+ * @param {string} relativeURL The relative URL
+ * @returns {string} The combined URL
+ */
 var combineURLs = function combineURLs(baseURL, relativeURL) {
   return relativeURL
     ? baseURL.replace(/\/+$/, '') + '/' + relativeURL.replace(/^\/+/, '')
     : baseURL;
 };
 
+/**
+ * Throws a `Cancel` if cancellation has been requested.
+ */
 function throwIfCancellationRequested(config) {
   if (config.cancelToken) {
     config.cancelToken.throwIfRequested();
@@ -11888,6 +11962,11 @@ var dispatchRequest = function dispatchRequest(config) {
   });
 };
 
+/**
+ * Create a new instance of Axios
+ *
+ * @param {Object} instanceConfig The default config for the instance
+ */
 function Axios(instanceConfig) {
   this.defaults = instanceConfig;
   this.interceptors = {
@@ -11956,6 +12035,12 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 
 var Axios_1 = Axios;
 
+/**
+ * A `Cancel` is an object that is thrown when an operation is canceled.
+ *
+ * @class
+ * @param {string=} message The message.
+ */
 function Cancel(message) {
   this.message = message;
 }
@@ -11968,6 +12053,12 @@ Cancel.prototype.__CANCEL__ = true;
 
 var Cancel_1 = Cancel;
 
+/**
+ * A `CancelToken` is an object that can be used to request cancellation of an operation.
+ *
+ * @class
+ * @param {Function} executor The executor function.
+ */
 function CancelToken(executor) {
   if (typeof executor !== 'function') {
     throw new TypeError('executor must be a function.');
@@ -12016,12 +12107,38 @@ CancelToken.source = function source() {
 
 var CancelToken_1 = CancelToken;
 
+/**
+ * Syntactic sugar for invoking a function and expanding an array for arguments.
+ *
+ * Common use case would be to use `Function.prototype.apply`.
+ *
+ *  ```js
+ *  function f(x, y, z) {}
+ *  var args = [1, 2, 3];
+ *  f.apply(null, args);
+ *  ```
+ *
+ * With `spread` this example can be re-written.
+ *
+ *  ```js
+ *  spread(function(x, y, z) {})([1, 2, 3]);
+ *  ```
+ *
+ * @param {Function} callback
+ * @returns {Function}
+ */
 var spread = function spread(callback) {
   return function wrap(arr) {
     return callback.apply(null, arr);
   };
 };
 
+/**
+ * Create an instance of Axios
+ *
+ * @param {Object} defaultConfig The default config for the instance
+ * @return {Axios} A new instance of Axios
+ */
 function createInstance(defaultConfig) {
   var context = new Axios_1(defaultConfig);
   var instance = bind$1(Axios_1.prototype.request, context);

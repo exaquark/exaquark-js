@@ -58,6 +58,5 @@ class browserMedia {
   stopVideo () {
     this.videoStream.getVideoTracks()[0].stop()
   }
-
 }
 export default browserMedia

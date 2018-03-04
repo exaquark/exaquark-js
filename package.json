@@ -1,6 +1,6 @@
 {
   "name": "exaquark-js",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "JS wrapper for exaquark.com",
   "main": "./",
   "scripts": {
