@@ -115,7 +115,16 @@ export default {
     }).catch('err', err => { console.error(err) })
 
     setInterval(() => {
-      this.sendBroadcast('ping from neighbor. hello?')
+      this.neighbors.forEach(n => {
+        exaQuark.push('signal:private', {
+          universe: 'UNIVERSE_ID',
+          entities: [n.iid],
+          signal: {
+            data: 'ping from neighbor. hello?'
+          }
+        })
+      })
+      // this.sendBroadcast('ping from neighbor. hello?')
     }, 3000)
   },
   methods: {
@@ -126,7 +135,6 @@ export default {
       return exaQuarkHelpers.getDistanceBetweenEntities(this.entityState, neighbor)
     },
     sendBroadcast: function (data) {
-      console.log('data', data)
       exaQuark.push('signal:broadcast', {
         universe: 'UNIVERSE_ID',
         reach: 5,

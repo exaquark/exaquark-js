@@ -1,6 +1,6 @@
 {
   "name": "exaquark-js",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "description": "JS wrapper for exaquark.com",
   "main": "./",
   "scripts": {
@@ -16,6 +16,7 @@
     "docs:api": "./node_modules/.bin/jsdoc2md --configure ./tooling/docs/jsdoc.json --files ./src/**/*.js > docs/api.md"
   },
   "files": [
+    "browserMedia.js",
     "core.js",
     "helpers.js",
     "utils"

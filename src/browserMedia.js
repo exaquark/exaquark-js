@@ -52,7 +52,7 @@ class browserMedia {
   }
 
   stopAudio () {
-    this.videoStream.getAudioTracks()[0].stop()
+    this.audioTracks.getAudioTracks()[0].stop()
   }
 
   stopVideo () {

@@ -34,6 +34,10 @@ You can see a demo of the library in action in `demo`. See `demo/README.md` for 
 
 ## ChangeLog
 
+##### 1.0.17
+
+- fixing signals
+
 ##### 1.0.16
 
 - adding basic outline for media on browsers

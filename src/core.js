@@ -128,6 +128,9 @@ class exaQuark {
       case 'removes': // leaving neighborhood
         if (data.entities) this.onRemovesMessage(data.entities)
         break
+      case 'signal':
+        this.onSignalMessage(data)
+        break
     }
   }
   onNeighborsMessage (neighbors) {
@@ -155,6 +158,9 @@ class exaQuark {
   }
   onRemovesMessage (neighbors) {
     neighbors.forEach(n => { this.removeNeighbor(n) })
+  }
+  onSignalMessage (data) {
+    this.trigger('signal', data)
   }
   trigger (triggerEvent, payload, ref) {
     this.bindings
@@ -185,7 +191,7 @@ class exaQuark {
       case 'signal:private':
         this.sendPrivateSignal(payload)
         break
-      case 'signal:braodcast':
+      case 'signal:broadcast':
         this.sendBroadcastSignal(payload)
         break
       case 'ask:neighbors':
@@ -236,8 +242,8 @@ class exaQuark {
     // log(this.logger, 'sending update', state)
     let signalPayload = {
       method: 'signal:private',
-      iid: this.iid,
-      universe: this.universe,
+      // iid: this.iid,
+      // universe: this.universe,
       entities: payload.entities,
       signal: payload.signal
     }

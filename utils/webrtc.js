@@ -182,7 +182,6 @@ webrtc.onwebrtcsignal = function (sourceIid, incomingSignal) {
         //   type: 'webrtc',
         //   sdp: webrtc.peerLink[sourceIid].peerConnection.localDescription
         // })
-
       }).catch(function (error) {
         console.log('GET WRONG OFFER !?', incomingSignal, error);
       });

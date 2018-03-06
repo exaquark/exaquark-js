@@ -76,7 +76,7 @@ var browserMedia = function () {
   }, {
     key: 'stopAudio',
     value: function stopAudio() {
-      this.videoStream.getAudioTracks()[0].stop();
+      this.audioTracks.getAudioTracks()[0].stop();
     }
   }, {
     key: 'stopVideo',

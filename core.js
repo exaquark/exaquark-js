@@ -187,6 +187,9 @@ var exaQuark = function () {
           // leaving neighborhood
           if (data.entities) this.onRemovesMessage(data.entities);
           break;
+        case 'signal':
+          this.onSignalMessage(data);
+          break;
       }
     }
   }, {
@@ -229,6 +232,11 @@ var exaQuark = function () {
       neighbors.forEach(function (n) {
         _this5.removeNeighbor(n);
       });
+    }
+  }, {
+    key: 'onSignalMessage',
+    value: function onSignalMessage(data) {
+      this.trigger('signal', data);
     }
   }, {
     key: 'trigger',
@@ -275,7 +283,7 @@ var exaQuark = function () {
         case 'signal:private':
           this.sendPrivateSignal(payload);
           break;
-        case 'signal:braodcast':
+        case 'signal:broadcast':
           this.sendBroadcastSignal(payload);
           break;
         case 'ask:neighbors':
@@ -342,8 +350,8 @@ var exaQuark = function () {
       // log(this.logger, 'sending update', state)
       var signalPayload = {
         method: 'signal:private',
-        iid: this.iid,
-        universe: this.universe,
+        // iid: this.iid,
+        // universe: this.universe,
         entities: payload.entities,
         signal: payload.signal
       };
