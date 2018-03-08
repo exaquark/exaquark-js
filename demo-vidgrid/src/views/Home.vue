@@ -2,17 +2,38 @@
 <div class="Home">
   <Nav @onAudioClicked="toggleAudio()" @onMicClicked="toggleMic()" @onVideoClicked="toggleVideo()" />
 
-  <div class="section is-large has-text-centered" v-show="!hasVideoStream || !hasLocation">
-    <div class="columns">
-      <div class="column" v-if="!hasVideoStream">
+  <div class="intro-section" v-show="!hasVideoStream || !hasLocation">
+    <div class="columns is-gapless has-text-centered" >
+      <div class="column left" v-if="!hasVideoStream">
+        demo vid
+      </div>
+      <div class="column right has-vertically-aligned-content" v-if="!hasVideoStream">
+        <h1 class="title is-1 ">1</h1>
         Enable your video! <br>
         <small>So that you can chat to your nearest neighbors</small><br><br>
-        <button class="button" name="button" @click="getVideoStream()">Enable Video</button>
+        <button class="button is-info is-outlined is-rounded" name="button" @click="getVideoStream()">Enable Video</button>
       </div>
-      <div class="column" v-if="!hasLocation">
-        Send us your location <br>
+    </div>
+    <div class="columns is-gapless has-text-centered" v-show="!hasVideoStream || !hasLocation">
+      <div class="column left" v-if="!hasLocation">
+        <Radar
+          :lat="reportedLatLng.lat"
+          :lng="reportedLatLng.lng"
+          @onMove="changeLocation"
+        />
+      </div>
+      <div class="column right has-vertically-aligned-content" v-if="!hasLocation">
+        <h1 class="title is-1">2</h1>
+        Pick a location <br>
         <small>We don't share your exact location with anyone</small><br><br>
-        <button class="button" name="button" @click="getLocation()">Send Location</button>
+        <button class="button is-dark is-outlined is-rounded is-small" name="button" @click="getLocation()" v-show="hasGeolocation">Go to my location</button>
+        <div class="buttons has-addons is-centered latLng">
+          <a class="button is-static is-small">{{entityState.geo.lat}}</a>
+          <a class="button is-static is-small">{{entityState.geo.lng}}</a>
+        </div>
+
+        <button class="button is-info is-outlined is-rounded" name="button" @click="setLocation()">Chat Here</button>
+
       </div>
     </div>
   </div>
@@ -38,8 +59,13 @@ import { mapGetters } from 'vuex'
 import NeighborsSet from '@/utils/neighborsSet'
 import ExaQuarkJs from 'exaquark-js/core'
 import Nav from '@/components/Nav.vue'
+import Radar from '@/components/Radar.vue'
 const exaQuarkUrl = 'https://enter.exaquark.com'
 var apiKey = 'YOUR_API_KEY' // required
+
+let randomLat = Math.random() * 180 - 90
+let randomLng = Math.random() * 360 - 180
+
 let options = {
   entityId: 'ENTITY_ID', // required
   universe: 'UNIVERSE_ID', // optional: defaults to sandbox
@@ -50,13 +76,18 @@ var exaQuark = new ExaQuarkJs(exaQuarkUrl, apiKey, options)
 var Home = {
   name: 'Home',
   components: {
-    Nav
+    Nav,
+    Radar
   },
   data: () => {
     return {
       iid: '',
       hasVideoStream: false,
       hasLocation: false,
+      reportedLatLng: {
+        lat: randomLat,
+        lng: randomLng
+      },
       entityState: {
         entityId: 'MOCK_ENTITY_ID', // {string} required: their entityId
         universe: 'CHATGRID', // {string} required:  which universe is the entitiy in
@@ -87,6 +118,9 @@ var Home = {
       'sound',
       'video'
     ]),
+    hasGeolocation () {
+      return navigator.geolocation
+    },
     // iid: {
     //   get () {
     //     return this.$store.iid || ''
@@ -137,14 +171,23 @@ var Home = {
       this.videoElement.onloadedmetadata = (e) => { self.videoElement.play() }
       if (this.hasLocation) this.startExaQuark()
     },
+    changeLocation: function (payload) {
+      this.setPosition(payload.lat, payload.lng, 10)
+    },
     getLocation: function () {
       navigator.geolocation.getCurrentPosition(this.gotLocation, err => {
         console.log('err', err)
       })
     },
     gotLocation: function (position) {
-      this.hasLocation = true
       this.setPosition(position.coords.latitude, position.coords.longitude, 10)
+      this.reportedLatLng.lat = 0
+      this.reportedLatLng.lng = 0
+      this.reportedLatLng.lat = position.coords.latitude
+      this.reportedLatLng.lng = position.coords.longitude
+    },
+    setLocation: function () {
+      this.hasLocation = true
       if (this.hasVideoStream) this.startExaQuark()
     },
     startExaQuark: function () {
@@ -209,8 +252,35 @@ var Home = {
 export default Home
 </script>
 <style lang="scss" scoped>
+$screenHeightWithoutMenu: calc(100vh - 3.25rem - 2px); // height of Navbar and border
 .Home {
-  height: 100vh;
+  min-height: $screenHeightWithoutMenu;
+  .intro-section {
+    width: 100%;
+    height: 100%;
+    .columns {
+      margin-bottom: 0;
+      border-bottom: 1px solid #dedede;
+    }
+
+    .left {
+      // margin: 0;
+      // height: 100vh;
+      // background-color: #0093E9;
+      // background-image: linear-gradient(160deg, #0093E9 0%, #80D0C7 100%);
+
+    }
+    .right {
+      align-items: center;
+      // min-height: 50%;
+      // height: 100vh;
+      // background-color: #0093E9;
+      // background-image: linear-gradient(160deg, #0093E9 0%, #80D0C7 100%);
+    }
+    .latLng {
+      margin: 15px auto;
+    }
+  }
   .grid {
     height: 100vh;
     .tile {
@@ -230,5 +300,23 @@ export default Home
   }
 
   font-size: 0.8rem;
+
+  .column.has-vertically-aligned-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  @media (max-width: 768px) {
+    overflow: auto;
+    .left, .right {
+      height: 300px;
+    }
+  }
+  @media (min-width: 768px) {
+    height: $screenHeightWithoutMenu;
+    .columns {
+      height: 50%;
+    }
+  }
 }
 </style>
