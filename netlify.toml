@@ -1,2 +1,3 @@
 [build]
   base    = "demo-vidgrid"
+  publish = "dist"
