@@ -212,6 +212,7 @@ var Home = {
     startExaQuark: function () {
       let self = this
       exaQuark.on('neighbor:enter', entityState => {
+        self.hideNotification()
         console.log('neighbor', entityState)
         entityState.isPeerAuthority = entityState.iid > self.iid
         let neighbor = NeighborsSet.insertOrUpdateNeighbor(entityState.iid, entityState, self.videoStream)
@@ -262,10 +263,16 @@ var Home = {
       this.entityState.geo.lng = lng
       // this.$store.commit('SET_POSITION', { lat: lat, lng: lng, altitude: altitude })
     },
+    toggleMic: function () {
+      this.$store.commit('TOGGLE_MIC')
+      this.videoStream.getTracks().forEach(track => {
+        if (track.kind === 'audio') track.enabled = !track.enabled
+      })
+    },
     toggleVideo: function () {
       this.$store.commit('TOGGLE_VIDEO')
       this.videoStream.getTracks().forEach(track => {
-        track.enabled = !track.enabled
+        if (track.kind === 'video') track.enabled = !track.enabled
       })
     }
   }

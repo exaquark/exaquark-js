@@ -12,7 +12,7 @@
         <a class="navbar-item" @click="$emit('onVideoClicked')" v-show="hasVideoStream">
           <span class="icon is-small" v-bind:class="{ 'has-text-info': video }"><i class="fas fa-video"></i></span>
         </a>
-        <a class="navbar-item" @click="$store.commit('TOGGLE_MIC')" v-show="hasVideoStream">
+        <a class="navbar-item" @click="$emit('onMicClicked')" v-show="hasVideoStream">
           <span class="icon is-small" v-bind:class="{ 'has-text-info': mic }"><i class="fas fa-microphone"></i></span>
         </a>
         <a class="navbar-item" @click="toggleLocationModal()">
@@ -26,11 +26,11 @@
           </span>
         </a> -->
 
-        <div class="navbar-burger" @click="toggleMobileMenu()">
+        <!-- <div class="navbar-burger" @click="toggleMobileMenu()">
           <span></span>
           <span></span>
           <span></span>
-        </div>
+        </div> -->
       </div>
       <div class="navbar-menu" v-bind:class="{ 'is-active': showMobileMenu }">
         <div class="navbar-end">
