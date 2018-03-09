@@ -6,21 +6,21 @@
         <a class="navbar-item is-hidden-mobile" href="/">
           <img src="../assets/logo-menu.svg" alt="exaQuark" width="112" >
         </a>
-        <a class="navbar-item" @click="$store.commit('TOGGLE_SOUND')">
+        <a class="navbar-item" @click="$store.commit('TOGGLE_SOUND')" v-show="hasVideoStream">
           <span class="icon is-small" v-bind:class="{ 'has-text-info': sound, 'has-text-danger': !sound }"><i class="fas fa-volume-up"></i></span>
         </a>
-        <a class="navbar-item" @click="$emit('onVideoClicked')">
+        <a class="navbar-item" @click="$emit('onVideoClicked')" v-show="hasVideoStream">
           <span class="icon is-small" v-bind:class="{ 'has-text-info': video }"><i class="fas fa-video"></i></span>
         </a>
-        <a class="navbar-item" @click="$store.commit('TOGGLE_MIC')">
+        <a class="navbar-item" @click="$store.commit('TOGGLE_MIC')" v-show="hasVideoStream">
           <span class="icon is-small" v-bind:class="{ 'has-text-info': mic }"><i class="fas fa-microphone"></i></span>
         </a>
-        <!-- <a class="navbar-item" @click="toggleLocationModal()">
+        <a class="navbar-item" @click="toggleLocationModal()">
           <span class="icon is-small has-text-info">
             <i class="far fa-map"></i>
           </span>
         </a>
-        <a class="navbar-item" @click="toggleSettingsModal()">
+        <!-- <a class="navbar-item" @click="toggleSettingsModal()">
           <span class="icon is-small has-text-info">
             <i class="fas fa-cog"></i>
           </span>
@@ -62,6 +62,7 @@ export default {
   },
   computed: {
     ...mapGetters([
+      'hasVideoStream',
       'mic',
       'sound',
       'video'

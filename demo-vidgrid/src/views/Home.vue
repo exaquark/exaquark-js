@@ -2,49 +2,47 @@
 <div class="Home">
   <Nav @onAudioClicked="toggleAudio()" @onMicClicked="toggleMic()" @onVideoClicked="toggleVideo()" />
 
-  <div class="intro-section" v-show="!hasVideoStream || !hasLocation">
-    <div class="columns is-gapless has-text-centered" >
-      <div class="column left" v-if="!hasVideoStream">
-        demo vid
-      </div>
-      <div class="column right has-vertically-aligned-content" v-if="!hasVideoStream">
-        <h1 class="title is-1 ">1</h1>
+  <section class="section is-large" v-show="!hasVideoStream && !locationModalVisible">
+    <div class="columns is-centered has-vertically-aligned-content" >
+      <div class="column has-text-centered is-4">
         Enable your video! <br>
         <small>So that you can chat to your nearest neighbors</small><br><br>
         <button class="button is-info is-outlined is-rounded" name="button" @click="getVideoStream()">Enable Video</button>
       </div>
     </div>
-    <div class="columns is-gapless has-text-centered" v-show="!hasVideoStream || !hasLocation">
-      <div class="column left" v-if="!hasLocation">
-        <Radar
-          :lat="reportedLatLng.lat"
-          :lng="reportedLatLng.lng"
-          @onMove="changeLocation"
-        />
-      </div>
-      <div class="column right has-vertically-aligned-content" v-if="!hasLocation">
-        <h1 class="title is-1">2</h1>
+  </section>
+
+  <div class="locationModal" v-show="locationModalVisible">
+    <div class="columns is-gapless has-text-centered is is-centered">
+      <div class="column is-6">
+        <div class="radar-container">
+          <Radar
+            :lat="reportedLatLng.lat"
+            :lng="reportedLatLng.lng"
+            @onMove="changeLocation"
+          />
+        </div>
         Pick a location <br>
         <small>We don't share your exact location with anyone</small><br><br>
         <button class="button is-dark is-outlined is-rounded is-small" name="button" @click="getLocation()" v-show="hasGeolocation">Go to my location</button>
         <div class="buttons has-addons is-centered latLng">
-          <a class="button is-static is-small">{{entityState.geo.lat}}</a>
-          <a class="button is-static is-small">{{entityState.geo.lng}}</a>
+          <a class="button is-static is-small">{{teleportLatLng.lat}}</a>
+          <a class="button is-static is-small">{{teleportLatLng.lng}}</a>
         </div>
 
-        <button class="button is-info is-outlined is-rounded" name="button" @click="setLocation()">Chat Here</button>
+        <button class="button is-info is-outlined is-rounded" name="button" @click="handleTeleport()">Chat Here</button>
 
       </div>
     </div>
   </div>
 
-  <div class="grid tile is-ancestor" v-show="hasVideoStream && hasLocation">
-    <div class="tile">
+  <div class="grid columns is-gapless is-mobile is-multiline" v-show="hasVideoStream && !locationModalVisible">
+    <div class="column">
       <video src="#" autoplay poster="" ref="VideoElement" muted="muted">
         Your browser does not support the video tag.
       </video>
     </div>
-    <div class="tile" v-for="neighbor in neighborsWithStreams" :key="neighbor.iid">
+    <div class="column" v-for="neighbor in neighborsWithStreams" :key="neighbor.iid" v-bind:class="computeColumnSize()">
       <video src="#" autoplay poster="" v-bind:ref="neighbor.iid" v-bind:muted="!sound">
         Your browser does not support the video tag.
       </video>
@@ -82,8 +80,10 @@ var Home = {
   data: () => {
     return {
       iid: '',
-      hasVideoStream: false,
-      hasLocation: false,
+      teleportLatLng: {
+        lat: randomLat,
+        lng: randomLng
+      },
       reportedLatLng: {
         lat: randomLat,
         lng: randomLng
@@ -92,8 +92,8 @@ var Home = {
         entityId: 'MOCK_ENTITY_ID', // {string} required: their entityId
         universe: 'CHATGRID', // {string} required:  which universe is the entitiy in
         geo: {
-          lat: 0, // {double} required: latitude
-          lng: 0, // {double} required: longitude
+          lat: randomLat, // {double} required: latitude
+          lng: randomLng, // {double} required: longitude
           altitude: 0, // {double} optional: altitude in meters - can be negative
           rotation: [ 2, 5, 19 ] // {Array of doubles} optional: all in degrees. Default facing north
         },
@@ -114,6 +114,8 @@ var Home = {
   },
   computed: {
     ...mapGetters([
+      'hasVideoStream',
+      'locationModalVisible',
       'mic',
       'sound',
       'video'
@@ -121,14 +123,6 @@ var Home = {
     hasGeolocation () {
       return navigator.geolocation
     },
-    // iid: {
-    //   get () {
-    //     return this.$store.iid || ''
-    //   },
-    //   set (value) {
-    //     this.$store.commit('SET_IID', value)
-    //   }
-    // },
     // entityState: {
     //   get () {
     //     return this.$store.entityState
@@ -150,7 +144,10 @@ var Home = {
       return this.entityState
     },
     computeColumnSize: function () {
-      return 'is-6'
+      let videos = 1 + this.neighborsWithStreams
+      let gridSize = Math.ceil(Math.sqrt(videos))
+      let colSize = Math.floor(12 / gridSize)
+      return 'is-' + colSize
     },
     getVideoStream: function () {
       navigator.getUserMedia({
@@ -162,17 +159,18 @@ var Home = {
     },
     gotMedia: function (stream) {
       this.videoElement = this.$refs.VideoElement
-      this.hasVideoStream = true
+      this.$store.commit('TOGGLE_VIDEO_STREAM', true)
       this.$store.commit('TOGGLE_MIC')
       this.$store.commit('TOGGLE_VIDEO')
       this.videoStream = stream
       this.videoElement.srcObject = stream
       let self = this
       this.videoElement.onloadedmetadata = (e) => { self.videoElement.play() }
-      if (this.hasLocation) this.startExaQuark()
+      this.startExaQuark()
     },
     changeLocation: function (payload) {
-      this.setPosition(payload.lat, payload.lng, 10)
+      this.teleportLatLng.lat = payload.lat
+      this.teleportLatLng.lng = payload.lng
     },
     getLocation: function () {
       navigator.geolocation.getCurrentPosition(this.gotLocation, err => {
@@ -180,15 +178,15 @@ var Home = {
       })
     },
     gotLocation: function (position) {
-      this.setPosition(position.coords.latitude, position.coords.longitude, 10)
-      this.reportedLatLng.lat = 0
-      this.reportedLatLng.lng = 0
+      this.teleportLatLng.lat = position.coords.latitude
+      this.teleportLatLng.lng = position.coords.longitude
       this.reportedLatLng.lat = position.coords.latitude
       this.reportedLatLng.lng = position.coords.longitude
     },
-    setLocation: function () {
-      this.hasLocation = true
-      if (this.hasVideoStream) this.startExaQuark()
+    handleTeleport: function () {
+      this.entityState.geo.lat = this.teleportLatLng.lat
+      this.entityState.geo.lng = this.teleportLatLng.lng
+      this.$store.commit('TOGGLE_LOCATION_MODAL')
     },
     startExaQuark: function () {
       let self = this
@@ -254,38 +252,35 @@ export default Home
 <style lang="scss" scoped>
 $screenHeightWithoutMenu: calc(100vh - 3.25rem - 2px); // height of Navbar and border
 .Home {
-  min-height: $screenHeightWithoutMenu;
+  height: 100%;
+  overflow: hidden;
+  font-size: 0.8rem;
   .intro-section {
     width: 100%;
     height: 100%;
+  }
+  .locationModal {
+    height: $screenHeightWithoutMenu;
+    overflow: hidden;
     .columns {
-      margin-bottom: 0;
-      border-bottom: 1px solid #dedede;
-    }
-
-    .left {
-      // margin: 0;
-      // height: 100vh;
-      // background-color: #0093E9;
-      // background-image: linear-gradient(160deg, #0093E9 0%, #80D0C7 100%);
-
-    }
-    .right {
-      align-items: center;
-      // min-height: 50%;
-      // height: 100vh;
-      // background-color: #0093E9;
-      // background-image: linear-gradient(160deg, #0093E9 0%, #80D0C7 100%);
-    }
-    .latLng {
-      margin: 15px auto;
+      height: 100%;
+      .radar-container {
+        height: 300px;
+        border-radius: 5px;
+        overflow: hidden;
+        margin: 30px 0;
+      }
+      .latLng {
+        margin: 20px 0;
+      }
     }
   }
   .grid {
-    height: 100vh;
-    .tile {
-      overflow: hidden;
+    height: $screenHeightWithoutMenu;
+    overflow: hidden;
+    .column {
       position: relative;
+      overflow: hidden;
       video {
         height: 100%;
         width: 100%;
@@ -296,26 +291,6 @@ $screenHeightWithoutMenu: calc(100vh - 3.25rem - 2px); // height of Navbar and b
         background-size: cover;
         overflow: hidden;
       }
-    }
-  }
-
-  font-size: 0.8rem;
-
-  .column.has-vertically-aligned-content {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-  @media (max-width: 768px) {
-    overflow: auto;
-    .left, .right {
-      height: 300px;
-    }
-  }
-  @media (min-width: 768px) {
-    height: $screenHeightWithoutMenu;
-    .columns {
-      height: 50%;
     }
   }
 }

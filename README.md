@@ -2,6 +2,12 @@
 
 JS library for connecting to exaquark.com
 
+### About exaQuark
+
+exaQuark is a platform for Cross-Reality games.
+We make it simple to build games which can be played on your browser, phone, and AR/VR/XR Headset - all sharing one global userbase.
+Develop games like PokemonGo, share a userbase with every other game.
+
 ### Getting started
 
 ```javascript

@@ -4,6 +4,7 @@ import Vuex from 'vuex'
 Vue.use(Vuex)
 
 const state = {
+  hasVideoStream: false,
   iid: '',
   entityState: {
     entityId: 'MOCK_ENTITY_ID', // {string} required: their entityId
@@ -16,7 +17,7 @@ const state = {
     },
     properties: {
       displayName: '', // {string} required: a human readable name to be displayed
-      sound: false, // {boolean} optional: defaults to true. false === mute
+      sound: true, // {boolean} optional: defaults to true. false === mute
       mic: false, // {boolean} optional: defaults to true. false === muted microphone
       video: false, // {boolean} optional: defaults to true. false === muted microphone
       virtualPosition: true, // {boolean} optional: defaults to false. Is this person physically in the position that they are in the digital universe. (true === they are not physically present there)
@@ -87,6 +88,9 @@ const mutations = {
   },
   TOGGLE_VIDEO (state) {
     state.entityState.properties.video = !state.entityState.properties.video
+  },
+  TOGGLE_VIDEO_STREAM (state, value) {
+    state.hasVideoStream = value
   }
 }
 const actions = {
@@ -94,6 +98,7 @@ const actions = {
 }
 const getters = {
   customAvatar: state => state.entityState.customState.avatarUrl,
+  hasVideoStream: state => state.hasVideoStream,
   iid: state => state.iid,
   entityState: state => state.entityState,
   displayName: state => state.entityState.properties.displayName,
