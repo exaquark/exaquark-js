@@ -1,5 +1,10 @@
 <template>
 <div class="Home">
+  <div class="notification is-info" v-show="notification.visible">
+    <button class="delete" @click="hideNotification()"></button>
+    {{notification.text}}
+  </div>
+
   <Nav @onAudioClicked="toggleAudio()" @onMicClicked="toggleMic()" @onVideoClicked="toggleVideo()" />
 
   <section class="section is-large" v-show="!hasVideoStream && !locationModalVisible">
@@ -88,6 +93,10 @@ var Home = {
         lat: randomLat,
         lng: randomLng
       },
+      notification: {
+        visible: false,
+        text: ''
+      },
       entityState: {
         entityId: 'MOCK_ENTITY_ID', // {string} required: their entityId
         universe: 'CHATGRID', // {string} required:  which universe is the entitiy in
@@ -149,6 +158,14 @@ var Home = {
       let colSize = Math.floor(12 / gridSize)
       return 'is-' + colSize
     },
+    hideNotification: function () {
+      this.notification.visible = false
+      this.notification.text = ''
+    },
+    showNotification: function (text) {
+      this.notification.text = text
+      this.notification.visible = true
+    },
     getVideoStream: function () {
       navigator.getUserMedia({
         video: true,
@@ -173,11 +190,15 @@ var Home = {
       this.teleportLatLng.lng = payload.lng
     },
     getLocation: function () {
+      this.showNotification('Getting your location!')
+      let self = this
       navigator.geolocation.getCurrentPosition(this.gotLocation, err => {
         console.log('err', err)
+        self.showNotification('Couldn\'t get your location :(')
       })
     },
     gotLocation: function (position) {
+      this.hideNotification()
       this.teleportLatLng.lat = position.coords.latitude
       this.teleportLatLng.lng = position.coords.longitude
       this.reportedLatLng.lat = position.coords.latitude
@@ -202,6 +223,7 @@ var Home = {
       exaQuark.on('neighbor:leave', iid => {
         NeighborsSet.removeNeighbor(iid)
         self.neighbors = self.neighbors.filter(n => n.iid !== iid)
+        if (!self.neighbors.length) this.showNotification('Waiting for neighbors...')
       })
       exaQuark.on('neighbor:updates', entityState => {
         NeighborsSet.insertOrUpdateNeighbor(entityState.iid, entityState, self.videoStream)
@@ -229,6 +251,7 @@ var Home = {
       })
       exaQuark.connect(self.entityState).then(({ iid }) => {
         console.log('iid', iid)
+        this.showNotification('Waiting for neighbors...')
         self.iid = iid
         exaQuark.push('ask:neighbours')
       }).catch('err', err => { console.error(err) })
@@ -255,6 +278,15 @@ $screenHeightWithoutMenu: calc(100vh - 3.25rem - 2px); // height of Navbar and b
   height: 100%;
   overflow: hidden;
   font-size: 0.8rem;
+
+  .notification {
+    opacity: 0.6;
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    width: 40%;
+    z-index: 20;
+  }
   .intro-section {
     width: 100%;
     height: 100%;
