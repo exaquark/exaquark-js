@@ -5,61 +5,87 @@
     {{notification.text}}
   </div>
 
-  <Nav @onAudioClicked="toggleAudio()" @onMicClicked="toggleMic()" @onVideoClicked="toggleVideo()" />
+  <Nav
+    @onAudioClicked="toggleAudio()"
+    @onMicClicked="toggleMic()"
+    @onVideoClicked="toggleVideo()"
+    @onVideoDeviceChanged="switchVideoDevice"
+  />
 
-  <section class="section is-large" v-show="!hasVideoStream && !locationModalVisible">
-    <div class="columns is-centered has-vertically-aligned-content" >
-      <div class="column has-text-centered is-4">
-        Enable your video! <br>
-        <small>So that you can chat to your nearest neighbors</small><br><br>
-        <button class="button is-info is-outlined is-rounded" name="button" @click="getVideoStream()">Enable Video</button>
+  <main>
+
+    <section class="section is-large" v-show="!hasVideoStream && !locationModalVisible">
+      <div class="columns is-centered has-vertically-aligned-content" >
+        <div class="column has-text-centered is-4">
+          Enable your video! <br>
+          <small>So that you can chat to your nearest neighbors</small><br><br>
+          <button class="button is-info is-outlined is-rounded" name="button" @click="getVideoStream()">Enable Video</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="locationModal" v-show="locationModalVisible">
+      <div class="columns is-gapless has-text-centered is is-centered">
+        <div class="column is-6">
+          <div class="radar-container">
+            <Radar
+              :lat="reportedLatLng.lat"
+              :lng="reportedLatLng.lng"
+              @onMove="changeLocation"
+            />
+          </div>
+          Pick a location <br>
+          <small>We don't share your exact location with anyone</small><br><br>
+          <button class="button is-dark is-outlined is-rounded is-small" name="button" @click="getLocation()" v-show="hasGeolocation">Go to my location</button>
+          <div class="buttons has-addons is-centered latLng">
+            <a class="button is-static is-small">{{teleportLatLng.lat}}</a>
+            <a class="button is-static is-small">{{teleportLatLng.lng}}</a>
+          </div>
+
+          <button class="button is-info is-outlined is-rounded" name="button" @click="handleTeleport()">Call Here</button>
+
+        </div>
       </div>
     </div>
-  </section>
 
-  <div class="locationModal" v-show="locationModalVisible">
-    <div class="columns is-gapless has-text-centered is is-centered">
-      <div class="column is-6">
-        <div class="radar-container">
-          <Radar
-            :lat="reportedLatLng.lat"
-            :lng="reportedLatLng.lng"
-            @onMove="changeLocation"
-          />
+    <div class="grid columns is-gapless is-mobile is-multiline" v-show="hasVideoStream && !locationModalVisible">
+      <div class="column">
+        <video src="#" autoplay poster="" ref="VideoElement" muted="muted">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+      <div class="column" v-for="neighbor in neighborsWithStreams" :key="neighbor.iid" v-bind:class="computeColumnSize()">
+        <video src="#" autoplay poster="" v-bind:ref="neighbor.iid" v-bind:muted="!sound">
+          Your browser does not support the video tag.
+        </video>
+        <div class="field">
+          <a class="button is-rounded is-danger">
+            <span class="icon is-small">
+              <i class="fas fa-heart"></i>
+            </span>
+          </a>
+          <a class="button is-rounded is-info">
+            <span class="icon is-small ">
+              <i class="fas fa-thumbs-up"></i>
+            </span>
+          </a>
+          <a class="button is-rounded is-warning">
+            <span class="icon is-small">
+              <i class="far fa-smile"></i>
+            </span>
+          </a>
         </div>
-        Pick a location <br>
-        <small>We don't share your exact location with anyone</small><br><br>
-        <button class="button is-dark is-outlined is-rounded is-small" name="button" @click="getLocation()" v-show="hasGeolocation">Go to my location</button>
-        <div class="buttons has-addons is-centered latLng">
-          <a class="button is-static is-small">{{teleportLatLng.lat}}</a>
-          <a class="button is-static is-small">{{teleportLatLng.lng}}</a>
-        </div>
-
-        <button class="button is-info is-outlined is-rounded" name="button" @click="handleTeleport()">Chat Here</button>
-
+        <progress class="progress is-primary is-small" :value="neighbor.getVolume() * 200" max="100"></progress>
       </div>
     </div>
-  </div>
-
-  <div class="grid columns is-gapless is-mobile is-multiline" v-show="hasVideoStream && !locationModalVisible">
-    <div class="column">
-      <video src="#" autoplay poster="" ref="VideoElement" muted="muted">
-        Your browser does not support the video tag.
-      </video>
-    </div>
-    <div class="column" v-for="neighbor in neighborsWithStreams" :key="neighbor.iid" v-bind:class="computeColumnSize()">
-      <video src="#" autoplay poster="" v-bind:ref="neighbor.iid" v-bind:muted="!sound">
-        Your browser does not support the video tag.
-      </video>
-    </div>
-  </div>
+  </main>
 
 </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
-import NeighborsSet from '@/utils/neighborsSet'
+import NeighborsSet from '@/neighbors/set'
 import ExaQuarkJs from 'exaquark-js/core'
 import Nav from '@/components/Nav.vue'
 import Radar from '@/components/Radar.vue'
@@ -85,6 +111,8 @@ var Home = {
   data: () => {
     return {
       iid: '',
+      audioDevice: null,
+      videoDevice: null,
       teleportLatLng: {
         lat: randomLat,
         lng: randomLng
@@ -142,7 +170,7 @@ var Home = {
     // },
     neighborsWithStreams: function () {
       return this.neighbors
-        .filter(n => n.hasActivePeerStream())
+        .filter(n => n.hasActiveStream())
         .sort((a, b) => {
           return a.iid > b.iid ? 1 : a.iid < b.iid ? -1 : 0
         })
@@ -166,10 +194,25 @@ var Home = {
       this.notification.text = text
       this.notification.visible = true
     },
-    getVideoStream: function () {
+    switchVideoDevice: function (deviceId) {
+      this.videoDevice = deviceId
+      console.log('this.videoDevice', this.videoDevice)
+      this.stopAllTracks()
       navigator.getUserMedia({
-        video: true,
-        audio: true
+        video: {deviceId: this.videoDevice ? {exact: this.videoDevice} : undefined},
+        audio: {deviceId: this.audioDevice ? {exact: this.audioDevice} : undefined}
+      }, stream => {
+        this.videoElement = this.$refs.VideoElement
+        this.videoStream = stream
+        this.videoElement.srcObject = stream
+      }, err => {
+        console.log('err', err)
+      })
+    },
+    getVideoStream: function (audioSource, videoSource) {
+      navigator.getUserMedia({
+        video: {deviceId: videoSource ? {exact: videoSource} : undefined},
+        audio: {deviceId: audioSource ? {exact: audioSource} : undefined}
       }, this.gotMedia, err => {
         console.log('err', err)
       })
@@ -216,9 +259,10 @@ var Home = {
         console.log('neighbor', entityState)
         entityState.isPeerAuthority = entityState.iid > self.iid
         let neighbor = NeighborsSet.insertOrUpdateNeighbor(entityState.iid, entityState, self.videoStream)
+        neighbor.customAvatar = 'hello world'
         neighbor.peerConnection.on('stream', function (stream) {
           console.log(`got stream ${stream.id}`, stream)
-          neighbor.peerStream = stream
+          neighbor.setStream(stream)
         })
       })
       exaQuark.on('neighbor:leave', iid => {
@@ -238,9 +282,10 @@ var Home = {
         self.neighbors.push(neighbor)
         let videoElement = (self.$refs[entityState.iid]) ? self.$refs[entityState.iid][0] : false
         if (videoElement && !videoElement.srcObject) {
-          videoElement.srcObject = neighbor.getPeerStream()
+          videoElement.srcObject = neighbor.getStream()
           videoElement.play()
         }
+        neighbor.getVolume()
       })
       exaQuark.on('signal', payload => {
         // if (payload.signal && payload.signal.type === 'webrtc') this.handleP2pSetup(payload)
@@ -274,6 +319,13 @@ var Home = {
       this.videoStream.getTracks().forEach(track => {
         if (track.kind === 'video') track.enabled = !track.enabled
       })
+    },
+    stopAllTracks: function () {
+      if (!this.videoStream) return
+      this.videoStream.getTracks().forEach(track => {
+        track.enabled = false
+        track.stop()
+      })
     }
   }
 }
@@ -284,8 +336,10 @@ $screenHeightWithoutMenu: calc(100vh - 3.25rem - 2px); // height of Navbar and b
 .Home {
   height: 100%;
   overflow: hidden;
-  font-size: 0.8rem;
 
+  main {
+    font-size: 0.8rem;
+  }
   .notification {
     opacity: 0.6;
     position: fixed;
@@ -329,6 +383,19 @@ $screenHeightWithoutMenu: calc(100vh - 3.25rem - 2px); // height of Navbar and b
         bottom: 0;
         background-size: cover;
         overflow: hidden;
+      }
+      div.field {
+        position: absolute;
+        bottom: 0;
+        width: 90%;
+        margin: 5%;
+        margin-bottom: 10%;
+      }
+      progress {
+        position: absolute;
+        bottom: 0;
+        width: 90%;
+        margin: 5%;
       }
     }
   }
