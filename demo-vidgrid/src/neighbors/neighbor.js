@@ -4,6 +4,7 @@
 const Peer = require('simple-peer')
 const ICEconfiguration = {
   iceServers: [
+    {urls: 'stun:5.39.93.115', username: 'divereal', credential: 'paris1965'},
     {urls: 'turn:5.39.93.115', username: 'divereal', credential: 'paris1965'}
   ]
 }
@@ -12,7 +13,6 @@ export default class Neighbor {
   constructor (entityState) {
     this.state = entityState
     this.iid = entityState.iid
-    this.isInitiator = entityState.isPeerAuthority // the person with the highest IID should be the initiator of the P2P connection
   }
   update = function (state) {
     this.state = state
@@ -23,40 +23,6 @@ export default class Neighbor {
   getStream = function () {
     return this.peerStream
   }
-  getVolume () {
-    let AudioContext = window.AudioContext || window.webkitAudioContext
-    if (!AudioContext || !this.peerConnection || !this.peerStream) {
-      // return console.log('Cannot get volume for ' + this.iid)
-      return null
-    }
-
-    if (!this.volume.scriptProcessor) {
-      try {
-        let self = this
-        let audioContext = new AudioContext()
-        self.volume.scriptProcessor = audioContext.createScriptProcessor(2048, 1, 1)
-        self.volume.scriptProcessor.onaudioprocess = event => {
-          let input = event.inputBuffer.getChannelData(0)
-          let sum = 0.0
-          let clipcount = 0 // eslint-disable-line
-          for (let i = 0; i < input.length; ++i) {
-            sum += input[i] * input[i]
-            if (Math.abs(input[i]) > 0.99) {
-              clipcount += 1
-            }
-          }
-          self.volume.instant = Math.sqrt(sum / input.length)
-          self.volume.value = 0.2 * self.volume.value + 0.8 * self.volume.instant // "smooth" the volume
-        }
-        self.volume.mic = audioContext.createMediaStreamSource(this.peerStream)
-        self.volume.mic.connect(self.volume.scriptProcessor)
-        self.volume.scriptProcessor.connect(audioContext.destination)
-        return self.volume.value // will be 0.0 while the processor starts up
-      } catch (e) {
-        return console.log('Audio not supported', e)
-      }
-    } else return this.volume.value
-  }
 }
 
 Neighbor.prototype.peerStream = null
@@ -66,48 +32,60 @@ Neighbor.prototype.volume = {
   instant: 0.0,
   scriptProcessor: null
 }
-Neighbor.prototype.initPeerConnection = function (stream) {
+Neighbor.prototype.initPeerConnection = function (stream, isInitiator) {
   this.closeStream()
+  console.log('isInitiator', isInitiator)
   if (stream) {
     console.log('initializing p2p with stream')
     this.peerConnection = new Peer({
       channelName: this.state.iid,
-      initiator: this.isInitiator,
+      initiator: isInitiator, // the person with the highest IID should be the initiator of the P2P connection (or the person who changes stream)
       stream: stream,
-      config: ICEconfiguration
+      config: ICEconfiguration,
+      reconnectTimer: 5000
     })
   } else {
     console.log('initializing p2p without stream')
     this.peerConnection = new Peer({
       channelName: this.state.iid,
-      initiator: this.isInitiator,
-      config: ICEconfiguration
+      initiator: isInitiator,
+      config: ICEconfiguration,
+      reconnectTimer: 5000
     })
   }
 
-  this.peerConnection.on('signal', data => {
+  var neighbour = this
+  // the following are called via their peer, so they have no concept of "this" neighbor
+  // instead, "this" refers to the P2P connection
+  neighbour.peerConnection.on('signal', data => {
     // queue the data for exaQuark
     this.signalsToSend.push(JSON.stringify(data))
   })
-
-  // the following are called via their peer, so they have no concept of "this" neighbor
-  // instead, "this" refers to the P2P connection
-  this.peerConnection.on('connect', function () {
-    console.log('connected', this)
+  neighbour.peerConnection.on('stream', remoteStream => {
+    console.log(`got remoteStream ${remoteStream.id}`, remoteStream)
+    neighbour.setStream(remoteStream)
+  })
+  neighbour.peerConnection.on('connect', function () {
+    console.log('connected', neighbour)
     this.send('hello :)')
   })
-  this.peerConnection.on('data', function (data) {
+  neighbour.peerConnection.on('data', function (data) {
     console.log('got a message: ' + data, this)
   })
-  this.peerConnection.on('close', function () {
-    console.log('close', this)
+  neighbour.peerConnection.on('close', function () {
+    console.log('close', neighbour)
+    neighbour.peerStream = null
+    neighbour.peerConnection = null
+    neighbour.signalsToSend = []
   })
+  return neighbour.peerConnection
 }
 Neighbor.prototype.setStream = function (stream) {
   this.peerStream = stream
 }
 Neighbor.prototype.closeStream = function (stream) {
   this.peerStream = null
+  this.peerConnection = null
   this.signalsToSend = []
 }
 Neighbor.prototype.receiveSignal = function (signal) {
@@ -130,4 +108,38 @@ Neighbor.prototype.sendQueuedSignals = function (exaQuark) {
     })
   }
   this.signalsToSend.splice(0, len)
+}
+Neighbor.prototype.getVolume = function () {
+  let AudioContext = window.AudioContext || window.webkitAudioContext
+  if (!AudioContext || !this.peerConnection || !this.peerStream) {
+    // return console.log('Cannot get volume for ' + this.iid)
+    return null
+  }
+
+  if (!this.volume.scriptProcessor) {
+    try {
+      let self = this
+      let audioContext = new AudioContext()
+      self.volume.scriptProcessor = audioContext.createScriptProcessor(2048, 1, 1)
+      self.volume.scriptProcessor.onaudioprocess = event => {
+        let input = event.inputBuffer.getChannelData(0)
+        let sum = 0.0
+        let clipcount = 0 // eslint-disable-line
+        for (let i = 0; i < input.length; ++i) {
+          sum += input[i] * input[i]
+          if (Math.abs(input[i]) > 0.99) {
+            clipcount += 1
+          }
+        }
+        self.volume.instant = Math.sqrt(sum / input.length)
+        self.volume.value = 0.2 * self.volume.value + 0.8 * self.volume.instant // "smooth" the volume
+      }
+      self.volume.mic = audioContext.createMediaStreamSource(this.peerStream)
+      self.volume.mic.connect(self.volume.scriptProcessor)
+      self.volume.scriptProcessor.connect(audioContext.destination)
+      return self.volume.value // will be 0.0 while the processor starts up
+    } catch (e) {
+      return console.log('Audio not supported', e)
+    }
+  } else return this.volume.value
 }

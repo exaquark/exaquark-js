@@ -70,7 +70,7 @@
         <div class="box">
 
           <p>video</p>
-          <a class="button" v-for="device in videoDevices" :key="device.deviceId + 'v'" @click="$emit('onVideoDeviceChanged', device)">
+          <a class="button" v-for="device in videoDevices" :key="device.deviceId + 'v'" @click="switchVideoDevice(device)">
             {{device.label}}
           </a>
 
@@ -147,6 +147,10 @@ export default {
     toggleSettingsModal: function () {
       this.settingsModalActive = !this.settingsModalActive
       // this.$store.commit('TOGGLE_SETTINGS_MODAL')
+    },
+    switchVideoDevice: function (device) {
+      this.settingsModalActive = !this.settingsModalActive
+      this.$emit('onVideoDeviceChanged', device)
     }
   }
 }

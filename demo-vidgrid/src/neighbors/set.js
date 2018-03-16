@@ -54,24 +54,22 @@ var NeighborsSet = {
       NeighborsSet.removeNeighbor(iid)
     }
   },
-  insertOrUpdateNeighbor: function (iid, entityState, stream) {
-    let neighbor = null
-    if (NeighborsSet.set.hasOwnProperty(iid)) {
-      // console.log('updating', iid)
-      neighbor = NeighborsSet.set[iid]
-      if (neighbor.state.customState.webrtc.streamId !== entityState.customState.webrtc.streamId) { // stream has changed
-        console.log('changing stream', entityState)
-        // neighbor.peerConnection = null
-        neighbor = new Neighbor(entityState)
-        NeighborsSet.set[iid] = neighbor
-      } else neighbor.update(entityState)
+  insertOrUpdateNeighbor: function (iid, neighbourState, stream, isPeerAuthority) {
+    let neighbor = NeighborsSet.set[iid]
+    let newNeighbor = typeof neighbor === 'undefined'
+    if (!newNeighbor && !this.remoteStreamChanged(neighbor, neighbourState)) { // update, no change to peerConnection
+      neighbor.update(neighbourState)
       return neighbor
     }
-    console.log('inserting', iid)
-    neighbor = new Neighbor(entityState)
-    // neighbor.initPeerConnection(stream)
+    let isInitiator = (newNeighbor) ? isPeerAuthority : false // if this is a new neighbor, let the IID decide, otherwise the other person has initiated a new peerConnection
+    neighbor = new Neighbor(neighbourState)
     NeighborsSet.set[iid] = neighbor
+    neighbor.initPeerConnection(stream, isInitiator)
     return neighbor
+  },
+  // checks if the remote peer has changed their media stream
+  remoteStreamChanged: function (neighbor, newState) {
+    return neighbor.state.customState.webrtc.streamId !== newState.customState.webrtc.streamId
   }
 }
 export default NeighborsSet

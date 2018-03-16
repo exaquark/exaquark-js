@@ -195,43 +195,21 @@ var Home = {
     },
     switchVideoDevice: function (device) {
       this.videoDevice = device.deviceId
-      // console.log('this.videoDevice', this.videoDevice)
-      // console.log('new device', device)
-      // console.log('this.videoStream', this.videoStream.getTracks())
-
-      // let trackToEnable = this.videoStream.getTracks().find(t => t.label === device.label)
       this.stopAllTracks()
-      // trackToEnable.enabled = true
-      // console.log('trackToEnable', trackToEnable)
       let self = this
       navigator.getUserMedia({
         video: {deviceId: this.videoDevice ? {exact: this.videoDevice} : undefined},
         audio: {deviceId: this.audioDevice ? {exact: this.audioDevice} : undefined}
       }, stream => {
-        if (stream.id !== self.videoStream.id) {
-          console.log('stream.id', stream.id)
-          self.videoElement = self.$refs.VideoElement
-          self.videoStream = stream
-          self.videoElement.srcObject = stream
-          self.entityState.customState.webrtc.streamId = stream.id
-          // // NeighborsSet.set = {}
-          // // this.neighbors = []
-          // // console.log('stream.getTracks()', stream.getTracks())
-          NeighborsSet.doForEach(n => {
-            // n.peerConnection.stream =
-            // console.log('n', n.peerConnection.destroy())
-            n.initPeerConnection(stream)
-            n.peerConnection.on('stream', function (stream) {
-              console.log(`got stream ${stream.id}`, stream)
-              n.setStream(stream)
-            })
-            n.peerConnection.on('close', function (stream) {
-              console.log('peerConnection closed for', n.iid)
-              // NeighborsSet.removeNeighbor(entityState.iid)
-              // console.log('NeighborsSet.set', NeighborsSet.set)
-            })
-          })
-        }
+        console.log('stream.id', stream.id)
+        self.videoElement = self.$refs.VideoElement
+        self.videoStream = stream
+        self.videoElement.srcObject = stream
+        self.entityState.customState.webrtc.streamId = stream.id
+        NeighborsSet.doForEach(neighbor => {
+          let isInitiator = true
+          neighbor.initPeerConnection(self.videoStream, isInitiator)
+        })
       }, err => {
         console.log('err', err)
       })
@@ -282,58 +260,27 @@ var Home = {
     },
     startExaQuark: function () {
       let self = this
-      exaQuark.on('neighbor:enter', entityState => {
+      exaQuark.on('neighbor:enter', neighbourState => {
         self.hideNotification()
-        console.log('neighbor', entityState)
-        entityState.isPeerAuthority = entityState.iid > self.iid
-        let neighbor = NeighborsSet.insertOrUpdateNeighbor(entityState.iid, entityState, self.videoStream)
-        neighbor.customAvatar = 'hello world'
-
-        if (!neighbor.peerConnection) {
-          neighbor.initPeerConnection(self.videoStream)
-          neighbor.peerConnection.on('stream', function (stream) {
-            console.log(`got stream ${stream.id}`, stream)
-            neighbor.setStream(stream)
-          })
-          neighbor.peerConnection.on('close', function (stream) {
-            console.log('peerConnection closed for', entityState.iid)
-            // NeighborsSet.removeNeighbor(entityState.iid)
-            // console.log('NeighborsSet.set', NeighborsSet.set)
-          })
-        }
+        console.log('neighbor', neighbourState)
+        let isPeerAuthority = neighbourState.iid > self.iid
+        console.log('neighbourState.isPeerAuthority', isPeerAuthority)
+        NeighborsSet.insertOrUpdateNeighbor(neighbourState.iid, neighbourState, self.videoStream, isPeerAuthority)
       })
       exaQuark.on('neighbor:leave', iid => {
         NeighborsSet.removeNeighbor(iid)
         self.neighbors = self.neighbors.filter(n => n.iid !== iid)
         if (!self.neighbors.length) this.showNotification('Waiting for neighbors...')
       })
-      exaQuark.on('neighbor:updates', entityState => {
-        let neighbor = NeighborsSet.insertOrUpdateNeighbor(entityState.iid, entityState, self.videoStream)
-
-        if (!neighbor.peerConnection) {
-          neighbor.initPeerConnection(self.videoStream)
-          neighbor.peerConnection.on('stream', function (stream) {
-            console.log(`got stream ${stream.id}`, stream)
-            neighbor.setStream(stream)
-          })
-          neighbor.peerConnection.on('close', function (stream) {
-            console.log('closing and removing neighbour', entityState.iid)
-            NeighborsSet.removeNeighbor(entityState.iid)
-            console.log('NeighborsSet.set', NeighborsSet.set)
-          })
-        }
-
-        // console.log('neighbor.peerConnection', neighbor.peerConnection)
-        if (neighbor.hasQueuedSignals()) {
-          neighbor.sendQueuedSignals(exaQuark)
-        }
-        self.neighbors = self.neighbors.filter(n => n.iid !== entityState.iid)
+      exaQuark.on('neighbor:updates', neighbourState => {
+        let isPeerAuthority = neighbourState.iid > self.iid
+        let neighbor = NeighborsSet.insertOrUpdateNeighbor(neighbourState.iid, neighbourState, self.videoStream, isPeerAuthority)
+        if (neighbor.hasQueuedSignals()) neighbor.sendQueuedSignals(exaQuark)
+        self.neighbors = self.neighbors.filter(n => n.iid !== neighbourState.iid)
         self.neighbors.push(neighbor)
-        let videoElement = (self.$refs[entityState.iid]) ? self.$refs[entityState.iid][0] : false
+        let videoElement = (self.$refs[neighbourState.iid]) ? self.$refs[neighbourState.iid][0] : false
         let stream = neighbor.getStream()
-        if (videoElement && !videoElement.srcObject) {
-          console.log('stream', stream)
-          console.log('stream.getTracks()', stream.getTracks())
+        if (stream !== null && videoElement && !videoElement.srcObject) {
           videoElement.srcObject = stream
           videoElement.play()
         }
