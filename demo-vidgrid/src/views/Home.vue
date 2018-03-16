@@ -166,20 +166,13 @@ var Home = {
     hasGeolocation () {
       return navigator.geolocation
     },
-    // entityState: {
-    //   get () {
-    //     return this.$store.entityState
-    //   },
-    //   entityState (value) {
-    //     this.$store.commit('SET_ENTITY_STATE', value)
-    //   }
-    // },
     neighborsWithStreams: function () {
-      return this.neighbors
+      let withStreams = this.neighbors
         .filter(n => n.hasActiveStream())
         .sort((a, b) => {
           return a.iid > b.iid ? 1 : a.iid < b.iid ? -1 : 0
         })
+      return withStreams
     }
   },
   methods: {
@@ -228,10 +221,15 @@ var Home = {
             // n.peerConnection.stream =
             // console.log('n', n.peerConnection.destroy())
             n.initPeerConnection(stream)
-            // stream.getTracks().forEach(track => {
-            //   n.peerConnection.stream.addTrack(track)
-            // })
-            // console.log('n.peerConnection', n.peerConnection.stream.getTracks())
+            n.peerConnection.on('stream', function (stream) {
+              console.log(`got stream ${stream.id}`, stream)
+              n.setStream(stream)
+            })
+            n.peerConnection.on('close', function (stream) {
+              console.log('peerConnection closed for', n.iid)
+              // NeighborsSet.removeNeighbor(entityState.iid)
+              // console.log('NeighborsSet.set', NeighborsSet.set)
+            })
           })
         }
       }, err => {

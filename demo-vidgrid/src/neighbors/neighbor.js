@@ -82,7 +82,6 @@ Neighbor.prototype.initPeerConnection = function (stream) {
       channelName: this.state.iid,
       initiator: this.isInitiator,
       config: ICEconfiguration
-
     })
   }
 

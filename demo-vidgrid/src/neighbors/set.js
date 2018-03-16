@@ -60,10 +60,11 @@ var NeighborsSet = {
       // console.log('updating', iid)
       neighbor = NeighborsSet.set[iid]
       if (neighbor.state.customState.webrtc.streamId !== entityState.customState.webrtc.streamId) { // stream has changed
-        console.log('changing stream')
-        neighbor.peerConnection = null
-      }
-      neighbor.update(entityState)
+        console.log('changing stream', entityState)
+        // neighbor.peerConnection = null
+        neighbor = new Neighbor(entityState)
+        NeighborsSet.set[iid] = neighbor
+      } else neighbor.update(entityState)
       return neighbor
     }
     console.log('inserting', iid)
