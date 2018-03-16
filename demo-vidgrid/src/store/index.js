@@ -8,7 +8,7 @@ const state = {
   iid: '',
   entityState: {
     entityId: 'MOCK_ENTITY_ID', // {string} required: their entityId
-    universe: 'CHATGRID', // {string} required:  which universe is the entitiy in
+    universe: 'VIDGRID', // {string} required:  which universe is the entitiy in
     geo: {
       lat: 0, // {double} required: latitude
       lng: 0, // {double} required: longitude

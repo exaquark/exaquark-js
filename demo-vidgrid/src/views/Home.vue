@@ -49,7 +49,7 @@
     </div>
 
     <div class="grid columns is-gapless is-mobile is-multiline" v-show="hasVideoStream && !locationModalVisible">
-      <div class="column">
+      <div class="column" v-bind:class="computeColumnSize()">
         <video src="#" autoplay poster="" ref="VideoElement" muted="muted">
           Your browser does not support the video tag.
         </video>
@@ -141,6 +141,12 @@ var Home = {
           video: true, // {boolean} optional: defaults to true. false === muted microphone
           virtualPosition: true, // {boolean} optional: defaults to false. Is this person physically in the position that they are in the digital universe. (true === they are not physically present there)
           entityType: 'HUMAN' // {string} optional: defaults to 'human'. Options: 'HUMAN' | 'BOT' | 'DRONE'
+        },
+        customState: {
+          webrtc: {
+            isEnabled: true,
+            streamId: null
+          }
         }
       },
       neighbors: [],
@@ -181,7 +187,7 @@ var Home = {
       return this.entityState
     },
     computeColumnSize: function () {
-      let videos = 1 + this.neighborsWithStreams
+      let videos = 1 + this.neighborsWithStreams.length
       let gridSize = Math.ceil(Math.sqrt(videos))
       let colSize = Math.floor(12 / gridSize)
       return 'is-' + colSize
@@ -194,17 +200,40 @@ var Home = {
       this.notification.text = text
       this.notification.visible = true
     },
-    switchVideoDevice: function (deviceId) {
-      this.videoDevice = deviceId
-      console.log('this.videoDevice', this.videoDevice)
+    switchVideoDevice: function (device) {
+      this.videoDevice = device.deviceId
+      // console.log('this.videoDevice', this.videoDevice)
+      // console.log('new device', device)
+      // console.log('this.videoStream', this.videoStream.getTracks())
+
+      // let trackToEnable = this.videoStream.getTracks().find(t => t.label === device.label)
       this.stopAllTracks()
+      // trackToEnable.enabled = true
+      // console.log('trackToEnable', trackToEnable)
+      let self = this
       navigator.getUserMedia({
         video: {deviceId: this.videoDevice ? {exact: this.videoDevice} : undefined},
         audio: {deviceId: this.audioDevice ? {exact: this.audioDevice} : undefined}
       }, stream => {
-        this.videoElement = this.$refs.VideoElement
-        this.videoStream = stream
-        this.videoElement.srcObject = stream
+        if (stream.id !== self.videoStream.id) {
+          console.log('stream.id', stream.id)
+          self.videoElement = self.$refs.VideoElement
+          self.videoStream = stream
+          self.videoElement.srcObject = stream
+          self.entityState.customState.webrtc.streamId = stream.id
+          // // NeighborsSet.set = {}
+          // // this.neighbors = []
+          // // console.log('stream.getTracks()', stream.getTracks())
+          NeighborsSet.doForEach(n => {
+            // n.peerConnection.stream =
+            // console.log('n', n.peerConnection.destroy())
+            n.initPeerConnection(stream)
+            // stream.getTracks().forEach(track => {
+            //   n.peerConnection.stream.addTrack(track)
+            // })
+            // console.log('n.peerConnection', n.peerConnection.stream.getTracks())
+          })
+        }
       }, err => {
         console.log('err', err)
       })
@@ -224,6 +253,7 @@ var Home = {
       this.$store.commit('TOGGLE_VIDEO')
       this.videoStream = stream
       this.videoElement.srcObject = stream
+      this.entityState.customState.webrtc.streamId = stream.id
       let self = this
       this.videoElement.onloadedmetadata = (e) => { self.videoElement.play() }
       this.startExaQuark()
@@ -260,10 +290,19 @@ var Home = {
         entityState.isPeerAuthority = entityState.iid > self.iid
         let neighbor = NeighborsSet.insertOrUpdateNeighbor(entityState.iid, entityState, self.videoStream)
         neighbor.customAvatar = 'hello world'
-        neighbor.peerConnection.on('stream', function (stream) {
-          console.log(`got stream ${stream.id}`, stream)
-          neighbor.setStream(stream)
-        })
+
+        if (!neighbor.peerConnection) {
+          neighbor.initPeerConnection(self.videoStream)
+          neighbor.peerConnection.on('stream', function (stream) {
+            console.log(`got stream ${stream.id}`, stream)
+            neighbor.setStream(stream)
+          })
+          neighbor.peerConnection.on('close', function (stream) {
+            console.log('peerConnection closed for', entityState.iid)
+            // NeighborsSet.removeNeighbor(entityState.iid)
+            // console.log('NeighborsSet.set', NeighborsSet.set)
+          })
+        }
       })
       exaQuark.on('neighbor:leave', iid => {
         NeighborsSet.removeNeighbor(iid)
@@ -271,27 +310,40 @@ var Home = {
         if (!self.neighbors.length) this.showNotification('Waiting for neighbors...')
       })
       exaQuark.on('neighbor:updates', entityState => {
-        NeighborsSet.insertOrUpdateNeighbor(entityState.iid, entityState, self.videoStream)
+        let neighbor = NeighborsSet.insertOrUpdateNeighbor(entityState.iid, entityState, self.videoStream)
 
-        let neighbor = NeighborsSet.set[entityState.iid]
-        // if we have some data for this neighbor then send it to them
+        if (!neighbor.peerConnection) {
+          neighbor.initPeerConnection(self.videoStream)
+          neighbor.peerConnection.on('stream', function (stream) {
+            console.log(`got stream ${stream.id}`, stream)
+            neighbor.setStream(stream)
+          })
+          neighbor.peerConnection.on('close', function (stream) {
+            console.log('closing and removing neighbour', entityState.iid)
+            NeighborsSet.removeNeighbor(entityState.iid)
+            console.log('NeighborsSet.set', NeighborsSet.set)
+          })
+        }
+
+        // console.log('neighbor.peerConnection', neighbor.peerConnection)
         if (neighbor.hasQueuedSignals()) {
           neighbor.sendQueuedSignals(exaQuark)
         }
         self.neighbors = self.neighbors.filter(n => n.iid !== entityState.iid)
         self.neighbors.push(neighbor)
         let videoElement = (self.$refs[entityState.iid]) ? self.$refs[entityState.iid][0] : false
+        let stream = neighbor.getStream()
         if (videoElement && !videoElement.srcObject) {
-          videoElement.srcObject = neighbor.getStream()
+          console.log('stream', stream)
+          console.log('stream.getTracks()', stream.getTracks())
+          videoElement.srcObject = stream
           videoElement.play()
         }
         neighbor.getVolume()
       })
       exaQuark.on('signal', payload => {
-        // if (payload.signal && payload.signal.type === 'webrtc') this.handleP2pSetup(payload)
-        // else console.log('received signal', payload)
         let peer = NeighborsSet.set[payload.source]
-        if (payload.signal.type === 'webrtc') {
+        if (payload.signal.type === '_webrtc') {
           peer.receiveSignal(payload.signal.data)
         }
       })

@@ -70,7 +70,7 @@
         <div class="box">
 
           <p>video</p>
-          <a class="button" v-for="device in videoDevices" :key="device.deviceId + 'v'" @click="$emit('onVideoDeviceChanged', device.deviceId)">
+          <a class="button" v-for="device in videoDevices" :key="device.deviceId + 'v'" @click="$emit('onVideoDeviceChanged', device)">
             {{device.label}}
           </a>
 

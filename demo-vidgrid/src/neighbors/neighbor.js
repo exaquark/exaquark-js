@@ -2,6 +2,11 @@
 // eslint-disable-next-line
 'use strict';
 const Peer = require('simple-peer')
+const ICEconfiguration = {
+  iceServers: [
+    {urls: 'turn:5.39.93.115', username: 'divereal', credential: 'paris1965'}
+  ]
+}
 
 export default class Neighbor {
   constructor (entityState) {
@@ -21,7 +26,8 @@ export default class Neighbor {
   getVolume () {
     let AudioContext = window.AudioContext || window.webkitAudioContext
     if (!AudioContext || !this.peerConnection || !this.peerStream) {
-      return console.log('Cannot get volume for ' + this.iid)
+      // return console.log('Cannot get volume for ' + this.iid)
+      return null
     }
 
     if (!this.volume.scriptProcessor) {
@@ -61,22 +67,28 @@ Neighbor.prototype.volume = {
   scriptProcessor: null
 }
 Neighbor.prototype.initPeerConnection = function (stream) {
+  this.closeStream()
   if (stream) {
-    Neighbor.prototype.peerConnection = new Peer({
+    console.log('initializing p2p with stream')
+    this.peerConnection = new Peer({
       channelName: this.state.iid,
       initiator: this.isInitiator,
-      stream: stream
+      stream: stream,
+      config: ICEconfiguration
     })
   } else {
-    Neighbor.prototype.peerConnection = new Peer({
+    console.log('initializing p2p without stream')
+    this.peerConnection = new Peer({
       channelName: this.state.iid,
-      initiator: this.isInitiator
+      initiator: this.isInitiator,
+      config: ICEconfiguration
+
     })
   }
 
   this.peerConnection.on('signal', data => {
     // queue the data for exaQuark
-    Neighbor.prototype.signalsToSend.push(JSON.stringify(data))
+    this.signalsToSend.push(JSON.stringify(data))
   })
 
   // the following are called via their peer, so they have no concept of "this" neighbor
@@ -90,17 +102,20 @@ Neighbor.prototype.initPeerConnection = function (stream) {
   })
   this.peerConnection.on('close', function () {
     console.log('close', this)
-    Neighbor.prototype.signalsToSend = []
   })
 }
 Neighbor.prototype.setStream = function (stream) {
-  Neighbor.prototype.peerStream = stream
+  this.peerStream = stream
+}
+Neighbor.prototype.closeStream = function (stream) {
+  this.peerStream = null
+  this.signalsToSend = []
 }
 Neighbor.prototype.receiveSignal = function (signal) {
-  Neighbor.prototype.peerConnection.signal(JSON.parse(signal))
+  this.peerConnection.signal(JSON.parse(signal))
 }
 Neighbor.prototype.hasQueuedSignals = function () {
-  return Neighbor.prototype.signalsToSend.length > 0
+  return this.signalsToSend.length > 0
 }
 Neighbor.prototype.sendQueuedSignals = function (exaQuark) {
   let len = this.signalsToSend.length
@@ -110,7 +125,7 @@ Neighbor.prototype.sendQueuedSignals = function (exaQuark) {
     exaQuark.push('signal:private', {
       entities: [this.iid],
       signal: {
-        type: 'webrtc',
+        type: '_webrtc',
         data: this.signalsToSend[i]
       }
     })
