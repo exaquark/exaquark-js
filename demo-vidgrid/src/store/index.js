@@ -22,6 +22,12 @@ const state = {
       video: false, // {boolean} optional: defaults to true. false === muted microphone
       virtualPosition: true, // {boolean} optional: defaults to false. Is this person physically in the position that they are in the digital universe. (true === they are not physically present there)
       entityType: 'HUMAN' // {string} optional: defaults to 'human'. Options: 'HUMAN' | 'BOT' | 'DRONE'
+    },
+    customState: {
+      webrtc: {
+        isEnabled: true,
+        streamId: null
+      }
     }
   },
   locations: {

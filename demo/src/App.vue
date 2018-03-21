@@ -25,11 +25,11 @@
       <h3>Open Multiple tabs to see neighbors</h3>
       <ul>
         <li v-for="n in neighbors" :key="n.iid">
-          {{n.properties.displayName}}<br>
+          {{n.state.properties.displayName}}<br>
           iid: {{n.iid}}
           <ul>
             <li>Distance: {{calcDistance(n)}}</li>
-            <li v-if="n.customState && n.customState.message">Custom State Message: {{n.customState.message}}</li>
+            <li v-if="n.state.customState && n.state.customState.message">Custom State Message: {{n.state.customState.message}}</li>
           </ul>
         </li>
       </ul>
@@ -132,7 +132,7 @@ export default {
       return this.entityState
     },
     calcDistance: function (neighbor) {
-      return exaQuarkHelpers.getDistanceBetweenEntities(this.entityState, neighbor)
+      return exaQuarkHelpers.getDistanceBetweenEntities(this.entityState, neighbor.state)
     },
     sendBroadcast: function (data) {
       exaQuark.push('signal:broadcast', {

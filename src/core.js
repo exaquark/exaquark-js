@@ -1,5 +1,6 @@
 import { log } from './utils/private'
 import { dictionaryToArray } from './helpers'
+import NeighborsSet from './neighbors/set'
 const axios = require('axios')
 
 /**
@@ -23,16 +24,14 @@ class exaQuark {
     this.heartbeat = !(options.heartbeat) ? 2000 : options.heartbeat // frequecy that the clientStateCallback will send updates to exaQuark
     this.iid = null
     this.logger = options.logger || function () {} // noop
-    this.neighborList = []
-    this.neighborHash = {}
+    this.neighborsSet = NeighborsSet
     this.params = options.params || {}
     this.state = null // holds the latest client entityState
-
-    // this.heartbeatTimer       = null
-    // this.pendingHeartbeatRef  = null
-    // this.reconnectTimer       = new Timer(() => {
-    //   this.disconnect(() => this.connect())
-    // }, this.reconnectAfterMs)
+    this.peerConnection = {
+      enabled: true,
+      type: 'WEBRTC',
+      stream: null
+    }
   }
 
   /**
@@ -134,30 +133,29 @@ class exaQuark {
     }
   }
   onNeighborsMessage (neighbors) {
-    if (Object.keys(this.neighborHash).length === 0) neighbors.forEach(n => { this.addNeighbor(n) })
-    else {
-      let oldNeighbors = this.deepClone(this.neighborHash)
-      neighbors.forEach(n => { // check for new neighbors
-        if (!this.isSelf(n)) {
-          if (!(n.iid in oldNeighbors) && !this.isSelf(n)) this.addNeighbor(n)
-          else this.updateNeighbor(n)
-        }
-      })
-      for (var n in oldNeighbors) { // check for leavers
-        if (!this.isSelf(n) && !(this.neighborHash[n])) this.removeNeighbor(oldNeighbors[n])
-      }
-    }
+    neighbors.forEach(n => {
+      if (this.isSelf(n)) return false
+      if (this.neighborsSet.isInSet(n.iid)) this.trigger('neighbor:updates', n)
+      else this.trigger('neighbor:enter', n)
+
+      let isPeerAuthority = n.iid > this.iid
+      this.neighborsSet.insertOrUpdateNeighbor(n, isPeerAuthority, this.peerConnection.stream)
+    })
   }
   onUpdatesMessage (neighbors) {
     neighbors.forEach(n => {
-      if (!this.isSelf(n)) {
-        if (typeof this.neighborHash[n.iid] === 'undefined') this.addNeighbor(n)
-        else this.updateNeighbor(n)
-      }
+      if (this.isSelf(n)) return false
+      if (this.neighborsSet.isInSet(n.iid)) this.trigger('neighbor:updates', n)
+      else this.trigger('neighbor:enter', n)
+      let isPeerAuthority = n.iid > this.iid
+      this.neighborsSet.insertOrUpdateNeighbor(n, isPeerAuthority, this.peerConnection.stream)
     })
   }
   onRemovesMessage (neighbors) {
-    neighbors.forEach(n => { this.removeNeighbor(n) })
+    neighbors.forEach(iid => {
+      this.neighborsSet.removeNeighbor(iid)
+      this.trigger('neighbor:leave', iid)
+    })
   }
   onSignalMessage (data) {
     this.trigger('signal', data)
@@ -169,18 +167,6 @@ class exaQuark {
   }
   isSelf (entity) {
     return entity.iid === this.iid
-  }
-  addNeighbor (n) {
-    this.trigger('neighbor:enter', n)
-    this.neighborHash[n.iid] = n
-  }
-  updateNeighbor (n) {
-    this.trigger('neighbor:updates', n)
-    this.neighborHash[n.iid] = n
-  }
-  removeNeighbor (iid) {
-    this.trigger('neighbor:leave', iid)
-    delete this.neighborHash[iid]
   }
   push (eventName, payload) {
     if (!this.canPush()) { return }
@@ -206,7 +192,7 @@ class exaQuark {
     return !!this.conn && (this.conn.readyState === this.conn.OPEN)
   }
   neighbors (format) {
-    return dictionaryToArray(this.neighborHash)
+    return dictionaryToArray(this.neighborsSet.set)
   }
   deepClone (object) {
     return JSON.parse(JSON.stringify(object))

@@ -34,6 +34,10 @@
     "url": "https://github.com/exaquark/exaquark-js/issues"
   },
   "homepage": "https://exaquark.com",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "simple-peer": "^9.0.0"
+  },
   "devDependencies": {
     "babel": "^6.5.2",
     "babel-cli": "^6.14.0",
@@ -61,9 +65,5 @@
     "jsdoc-to-markdown": "^4.0.1",
     "mocha": "^3.0.2",
     "rimraf": "^2.5.4"
-  },
-  "dependencies": {
-    "axios": "^0.18.0",
-    "xhr": "^2.4.1"
   }
 }

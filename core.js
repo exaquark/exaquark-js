@@ -10,6 +10,12 @@ var _private = require('./utils/private');
 
 var _helpers = require('./helpers');
 
+var _set = require('./neighbors/set');
+
+var _set2 = _interopRequireDefault(_set);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var axios = require('axios');
@@ -42,16 +48,14 @@ var exaQuark = function () {
     this.heartbeat = !options.heartbeat ? 2000 : options.heartbeat; // frequecy that the clientStateCallback will send updates to exaQuark
     this.iid = null;
     this.logger = options.logger || function () {}; // noop
-    this.neighborList = [];
-    this.neighborHash = {};
+    this.neighborsSet = _set2.default;
     this.params = options.params || {};
     this.state = null; // holds the latest client entityState
-
-    // this.heartbeatTimer       = null
-    // this.pendingHeartbeatRef  = null
-    // this.reconnectTimer       = new Timer(() => {
-    //   this.disconnect(() => this.connect())
-    // }, this.reconnectAfterMs)
+    this.peerConnection = {
+      enabled: true,
+      type: 'WEBRTC',
+      stream: null
+    };
   }
 
   /**
@@ -197,21 +201,13 @@ var exaQuark = function () {
     value: function onNeighborsMessage(neighbors) {
       var _this3 = this;
 
-      if (Object.keys(this.neighborHash).length === 0) neighbors.forEach(function (n) {
-        _this3.addNeighbor(n);
-      });else {
-        var oldNeighbors = this.deepClone(this.neighborHash);
-        neighbors.forEach(function (n) {
-          // check for new neighbors
-          if (!_this3.isSelf(n)) {
-            if (!(n.iid in oldNeighbors) && !_this3.isSelf(n)) _this3.addNeighbor(n);else _this3.updateNeighbor(n);
-          }
-        });
-        for (var n in oldNeighbors) {
-          // check for leavers
-          if (!this.isSelf(n) && !this.neighborHash[n]) this.removeNeighbor(oldNeighbors[n]);
-        }
-      }
+      neighbors.forEach(function (n) {
+        if (_this3.isSelf(n)) return false;
+        if (_this3.neighborsSet.isInSet(n.iid)) _this3.trigger('neighbor:updates', n);else _this3.trigger('neighbor:enter', n);
+
+        var isPeerAuthority = n.iid > _this3.iid;
+        _this3.neighborsSet.insertOrUpdateNeighbor(n, isPeerAuthority, _this3.peerConnection.stream);
+      });
     }
   }, {
     key: 'onUpdatesMessage',
@@ -219,9 +215,10 @@ var exaQuark = function () {
       var _this4 = this;
 
       neighbors.forEach(function (n) {
-        if (!_this4.isSelf(n)) {
-          if (typeof _this4.neighborHash[n.iid] === 'undefined') _this4.addNeighbor(n);else _this4.updateNeighbor(n);
-        }
+        if (_this4.isSelf(n)) return false;
+        if (_this4.neighborsSet.isInSet(n.iid)) _this4.trigger('neighbor:updates', n);else _this4.trigger('neighbor:enter', n);
+        var isPeerAuthority = n.iid > _this4.iid;
+        _this4.neighborsSet.insertOrUpdateNeighbor(n, isPeerAuthority, _this4.peerConnection.stream);
       });
     }
   }, {
@@ -229,8 +226,9 @@ var exaQuark = function () {
     value: function onRemovesMessage(neighbors) {
       var _this5 = this;
 
-      neighbors.forEach(function (n) {
-        _this5.removeNeighbor(n);
+      neighbors.forEach(function (iid) {
+        _this5.neighborsSet.removeNeighbor(iid);
+        _this5.trigger('neighbor:leave', iid);
       });
     }
   }, {
@@ -251,24 +249,6 @@ var exaQuark = function () {
     key: 'isSelf',
     value: function isSelf(entity) {
       return entity.iid === this.iid;
-    }
-  }, {
-    key: 'addNeighbor',
-    value: function addNeighbor(n) {
-      this.trigger('neighbor:enter', n);
-      this.neighborHash[n.iid] = n;
-    }
-  }, {
-    key: 'updateNeighbor',
-    value: function updateNeighbor(n) {
-      this.trigger('neighbor:updates', n);
-      this.neighborHash[n.iid] = n;
-    }
-  }, {
-    key: 'removeNeighbor',
-    value: function removeNeighbor(iid) {
-      this.trigger('neighbor:leave', iid);
-      delete this.neighborHash[iid];
     }
   }, {
     key: 'push',
@@ -302,7 +282,7 @@ var exaQuark = function () {
   }, {
     key: 'neighbors',
     value: function neighbors(format) {
-      return (0, _helpers.dictionaryToArray)(this.neighborHash);
+      return (0, _helpers.dictionaryToArray)(this.neighborsSet.set);
     }
   }, {
     key: 'deepClone',
